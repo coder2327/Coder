@@ -1,522 +1,536 @@
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Search, User, Heart, ShoppingBag, 
-  Menu, X, Mountain, Facebook, Instagram, Twitter, Youtube, 
-  ChevronLeft, ChevronRight, Star, CheckCircle, Trash2
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lalibela Outdoors</title>
+    <!-- Tailwind CSS for Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Smooth scrolling and basic animations */
+        html { scroll-behavior: smooth; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Hide scrollbar for cart but allow scrolling */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="min-h-screen bg-white font-sans text-gray-900 overflow-x-hidden selection:bg-[#C46C3B] selection:text-white">
 
-// --- MOCK DATA ---
-const NAV_LINKS = [
-  { name: 'Home', active: true },
-  { name: 'New Arrivals', active: false },
-  { name: 'Men', active: false },
-  { name: 'Women', active: false },
-  { name: 'Gear', active: false },
-  { name: 'Journal', active: false },
-  { name: 'Sale', active: false, highlight: true },
-];
-
-const HERO_IMAGES = [
-  {
-    url: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&q=80&w=1600',
-    title: 'EMBRACE\nTHE WILD',
-    subtitle: 'Discover the New Autumn Collection'
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&q=80&w=1600',
-    title: 'PREMIUM\nAPPAREL',
-    subtitle: 'Built for the Ethiopian Highlands'
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&q=80&w=1600',
-    title: 'GEAR UP\nFOR ADVENTURE',
-    subtitle: 'Everything you need for the outdoors'
-  }
-];
-
-const TRENDING_PRODUCTS = [
-  { id: 1, name: 'Lalibela Tech Jacket', rating: 4.5, reviews: 12, price: 5800.00, img: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&q=80&w=400' },
-  { id: 2, name: 'Bale Mountain Boots', rating: 4.8, reviews: 34, price: 7200.00, img: 'https://images.unsplash.com/photo-1608667508764-33cf0726b13a?auto=format&fit=crop&q=80&w=400' },
-  { id: 3, name: 'Simien Trekking Bag', rating: 4.6, reviews: 18, price: 4500.00, img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=400' },
-  { id: 4, name: 'Thermal Water Flask', rating: 4.9, reviews: 55, price: 1200.00, img: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&q=80&w=400' },
-];
-
-const CATEGORIES = [
-  { name: 'APPAREL', img: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&q=80&w=400' },
-  { name: 'FOOTWEAR', img: 'https://images.unsplash.com/photo-1520639888713-7851133b1ed0?auto=format&fit=crop&q=80&w=400' },
-  { name: 'ACCESSORIES', img: 'https://images.unsplash.com/photo-1502280203590-50d4d29c878b?auto=format&fit=crop&q=80&w=400' },
-  { name: 'CAMPING GEAR', img: 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&q=80&w=400' },
-];
-
-export default function App() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState([]);
-  const [heroIndex, setHeroIndex] = useState(0);
-  const [toast, setToast] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
-
-  // --- HERO CAROUSEL LOGIC ---
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setHeroIndex((prev) => (prev + 1) % HERO_IMAGES.length);
-    }, 5000); // Change image every 5 seconds
-    return () => clearInterval(timer);
-  }, []);
-
-  // --- CART LOGIC ---
-  const handleAddToCart = (product) => {
-    setCartItems(prev => {
-      const existing = prev.find(item => item.id === product.id);
-      if (existing) {
-        return prev.map(item => item.id === product.id ? { ...item, qty: item.qty + 1 } : item);
-      }
-      return [...prev, { ...product, qty: 1 }];
-    });
-    
-    // Show professional Toast Notification
-    setToast(`Added ${product.name} to cart!`);
-    setTimeout(() => setToast(null), 3000);
-  };
-
-  const removeFromCart = (productId) => {
-    setCartItems(prev => prev.filter(item => item.id !== productId));
-  };
-
-  const cartTotal = cartItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
-  const totalItems = cartItems.reduce((sum, item) => sum + item.qty, 0);
-
-  // --- SEARCH LOGIC ---
-  const handleSearch = (e) => {
-    setSearchQuery(e.target.value);
-    setIsSearching(e.target.value.length > 0);
-  };
-
-  const searchResults = TRENDING_PRODUCTS.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
-
-  return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 overflow-x-hidden selection:bg-[#C46C3B] selection:text-white">
-      
-      {/* Announcement Bar */}
-      <div className="bg-[#C46C3B] text-white text-xs font-bold tracking-widest uppercase text-center py-2 px-4">
+    <!-- Announcement Bar -->
+    <div class="bg-[#C46C3B] text-white text-xs font-bold tracking-widest uppercase text-center py-2 px-4">
         Free Shipping across Ethiopia on orders over 5,000 ETB
-      </div>
+    </div>
 
-      {/* --- HEADER --- */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            
-            {/* Mobile Menu Trigger */}
-            <button 
-              className="md:hidden p-2 -ml-2 text-gray-600 hover:text-[#C46C3B] transition-colors"
-              onClick={() => setIsMobileMenuOpen(true)}
-            >
-              <Menu size={26} />
-            </button>
+    <!-- HEADER -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center">
+                
+                <!-- Mobile Menu Trigger -->
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2 -ml-2 text-gray-600 hover:text-[#C46C3B] transition-colors">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
 
-            {/* Logo */}
-            <div className="flex items-center gap-2 cursor-pointer group">
-              <Mountain className="text-[#C46C3B] w-8 h-8 group-hover:scale-110 transition-transform duration-300" />
-              <span className="font-black text-2xl tracking-tighter uppercase text-gray-900 group-hover:text-[#C46C3B] transition-colors">
-                Lalibela
-              </span>
-            </div>
-
-            {/* Interactive Search Bar (Desktop) */}
-            <div className="hidden md:flex flex-1 max-w-md mx-8 relative">
-              <input 
-                type="text" 
-                value={searchQuery}
-                onChange={handleSearch}
-                placeholder="Search for jackets, boots..." 
-                className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-full pl-5 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#C46C3B]/50 focus:border-[#C46C3B] transition-all"
-              />
-              <button className="absolute right-2 top-1.5 bottom-1.5 aspect-square bg-[#C46C3B] text-white rounded-full flex items-center justify-center hover:bg-[#a6592f] transition-colors">
-                <Search className="w-4 h-4" />
-              </button>
-
-              {/* Mock Search Dropdown */}
-              {isSearching && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
-                  {searchResults.length > 0 ? searchResults.map(res => (
-                    <div key={res.id} className="flex items-center gap-4 p-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-50 last:border-0" onClick={() => {setSearchQuery(''); setIsSearching(false);}}>
-                      <img src={res.img} alt={res.name} className="w-10 h-10 object-cover rounded" />
-                      <div>
-                        <p className="text-sm font-bold">{res.name}</p>
-                        <p className="text-xs text-[#C46C3B] font-bold">{res.price} ETB</p>
-                      </div>
-                    </div>
-                  )) : (
-                    <div className="p-4 text-sm text-gray-500 text-center">No products found.</div>
-                  )}
+                <!-- Logo -->
+                <div class="flex items-center gap-2 cursor-pointer group">
+                    <i data-lucide="mountain" class="text-[#C46C3B] w-8 h-8 group-hover:scale-110 transition-transform duration-300"></i>
+                    <span class="font-black text-2xl tracking-tighter uppercase text-gray-900 group-hover:text-[#C46C3B] transition-colors">
+                        Lalibela
+                    </span>
                 </div>
-              )}
+
+                <!-- Interactive Search Bar (Desktop) -->
+                <div class="hidden md:flex flex-1 max-w-md mx-8 relative">
+                    <input 
+                        type="text" 
+                        id="searchInput"
+                        oninput="handleSearch(this.value)"
+                        placeholder="Search for jackets, boots..." 
+                        class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-full pl-5 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#C46C3B]/50 focus:border-[#C46C3B] transition-all"
+                    >
+                    <button class="absolute right-2 top-1.5 bottom-1.5 aspect-square bg-[#C46C3B] text-white rounded-full flex items-center justify-center hover:bg-[#a6592f] transition-colors">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                    </button>
+                    <!-- Search Dropdown -->
+                    <div id="searchResults" class="hidden absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
+                        <!-- Results injected via JS -->
+                    </div>
+                </div>
+
+                <!-- Icons -->
+                <div class="flex items-center gap-5 sm:gap-6 text-gray-700">
+                    <i data-lucide="search" class="md:hidden w-6 h-6 cursor-pointer hover:text-[#C46C3B] transition-colors"></i>
+                    <i data-lucide="user" class="w-6 h-6 hidden sm:block cursor-pointer hover:text-[#C46C3B] transition-colors"></i>
+                    <i data-lucide="heart" class="w-6 h-6 hidden sm:block cursor-pointer hover:text-[#C46C3B] transition-colors"></i>
+                    
+                    <!-- Cart Icon -->
+                    <button onclick="toggleCart()" class="relative cursor-pointer hover:text-[#C46C3B] transition-colors p-1">
+                        <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                        <span id="cartBadge" class="hidden absolute -top-1 -right-1 bg-[#C46C3B] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-bounce">0</span>
+                    </button>
+                </div>
             </div>
 
-            {/* Icons */}
-            <div className="flex items-center gap-5 sm:gap-6 text-gray-700">
-              <Search className="md:hidden w-6 h-6 cursor-pointer hover:text-[#C46C3B] transition-colors" />
-              <User className="w-6 h-6 hidden sm:block cursor-pointer hover:text-[#C46C3B] transition-colors" />
-              <Heart className="w-6 h-6 hidden sm:block cursor-pointer hover:text-[#C46C3B] transition-colors" />
-              
-              {/* Functional Cart Icon */}
-              <button 
-                onClick={() => setIsCartOpen(true)}
-                className="relative cursor-pointer hover:text-[#C46C3B] transition-colors p-1"
-              >
-                <ShoppingBag className="w-6 h-6" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-[#C46C3B] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-bounce">
-                    {totalItems}
-                  </span>
-                )}
-              </button>
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex justify-center items-center gap-8 mt-4">
+                <a href="#" class="text-sm font-semibold tracking-wide border-b-2 py-1 border-[#C46C3B] text-[#C46C3B]">Home</a>
+                <a href="#" class="text-sm font-semibold tracking-wide border-b-2 py-1 border-transparent text-gray-600 hover:text-[#C46C3B] hover:border-[#C46C3B] transition-all">New Arrivals</a>
+                <a href="#" class="text-sm font-semibold tracking-wide border-b-2 py-1 border-transparent text-gray-600 hover:text-[#C46C3B] hover:border-[#C46C3B] transition-all">Men</a>
+                <a href="#" class="text-sm font-semibold tracking-wide border-b-2 py-1 border-transparent text-gray-600 hover:text-[#C46C3B] hover:border-[#C46C3B] transition-all">Women</a>
+                <a href="#" class="text-sm font-semibold tracking-wide border-b-2 py-1 border-transparent text-gray-600 hover:text-[#C46C3B] hover:border-[#C46C3B] transition-all">Gear</a>
+                <a href="#" class="text-sm font-semibold tracking-wide border-b-2 py-1 border-transparent text-red-600 hover:border-red-600 transition-all">Sale</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MOBILE MENU DRAWER -->
+    <div id="mobileOverlay" onclick="toggleMobileMenu()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 opacity-0 invisible transition-opacity duration-300 md:hidden"></div>
+    <div id="mobileMenu" class="fixed inset-y-0 left-0 w-[80%] max-w-sm bg-white z-50 transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col md:hidden">
+        <div class="flex justify-between items-center p-6 border-b border-gray-100">
+            <div class="flex items-center gap-2">
+                <i data-lucide="mountain" class="text-[#C46C3B] w-6 h-6"></i>
+                <span class="font-black text-xl uppercase tracking-tighter">Lalibela</span>
             </div>
-          </div>
+            <button onclick="toggleMobileMenu()" class="p-2 text-gray-400 hover:text-gray-900 bg-gray-50 rounded-full">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div class="flex flex-col py-4 overflow-y-auto">
+            <a href="#" class="px-6 py-4 text-lg font-bold border-b border-gray-50 text-[#C46C3B]">Home</a>
+            <a href="#" class="px-6 py-4 text-lg font-bold border-b border-gray-50 text-gray-800">New Arrivals</a>
+            <a href="#" class="px-6 py-4 text-lg font-bold border-b border-gray-50 text-gray-800">Men</a>
+            <a href="#" class="px-6 py-4 text-lg font-bold border-b border-gray-50 text-gray-800">Women</a>
+            <a href="#" class="px-6 py-4 text-lg font-bold border-b border-gray-50 text-gray-800">Gear</a>
+            <a href="#" class="px-6 py-4 text-lg font-bold border-b border-gray-50 text-red-600">Sale</a>
+        </div>
+    </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex justify-center items-center gap-8 mt-4">
-            {NAV_LINKS.map((link) => (
-              <a 
-                key={link.name} 
-                href="#" 
-                className={`text-sm font-semibold tracking-wide border-b-2 py-1 ${
-                  link.active ? 'border-[#C46C3B] text-[#C46C3B]' : 
-                  link.highlight ? 'text-red-600 border-transparent hover:border-red-600' : 
-                  'border-transparent text-gray-600 hover:text-[#C46C3B] hover:border-[#C46C3B]'
-                } transition-all`}
-              >
-                {link.name}
-              </a>
-            ))}
-          </nav>
-        </div>
-      </header>
-
-      {/* --- PROFESSIONAL MOBILE MENU DRAWER --- */}
-      {/* Overlay */}
-      <div 
-        className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-50 transition-opacity duration-300 md:hidden ${isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
-        onClick={() => setIsMobileMenuOpen(false)}
-      />
-      {/* Menu Panel */}
-      <div className={`fixed inset-y-0 left-0 w-[80%] max-w-sm bg-white z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex justify-between items-center p-6 border-b border-gray-100">
-          <div className="flex items-center gap-2">
-            <Mountain className="text-[#C46C3B] w-6 h-6" />
-            <span className="font-black text-xl uppercase tracking-tighter">Lalibela</span>
-          </div>
-          <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-gray-400 hover:text-gray-900 bg-gray-50 rounded-full">
-            <X size={20} />
-          </button>
-        </div>
-        <div className="flex flex-col py-4 overflow-y-auto">
-          {NAV_LINKS.map((link) => (
-            <a 
-              key={link.name} 
-              href="#" 
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={`px-6 py-4 text-lg font-bold border-b border-gray-50 flex items-center justify-between ${link.highlight ? 'text-red-600' : 'text-gray-800'}`}
-            >
-              {link.name}
-              <ChevronRight size={18} className="text-gray-300" />
-            </a>
-          ))}
-        </div>
-        <div className="mt-auto p-6 bg-gray-50 flex gap-4 justify-around">
-          <div className="flex flex-col items-center gap-1 text-gray-600 hover:text-[#C46C3B] cursor-pointer">
-            <User size={24} />
-            <span className="text-xs font-bold">Account</span>
-          </div>
-          <div className="flex flex-col items-center gap-1 text-gray-600 hover:text-[#C46C3B] cursor-pointer">
-            <Heart size={24} />
-            <span className="text-xs font-bold">Wishlist</span>
-          </div>
-        </div>
-      </div>
-
-      {/* --- PROFESSIONAL SLIDE-OUT CART --- */}
-      {/* Overlay */}
-      <div 
-        className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-50 transition-opacity duration-300 ${isCartOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
-        onClick={() => setIsCartOpen(false)}
-      />
-      {/* Cart Panel */}
-      <div className={`fixed inset-y-0 right-0 w-full sm:w-[400px] bg-white z-50 transform transition-transform duration-300 ease-in-out flex flex-col shadow-2xl ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-        <div className="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50/50">
-          <h2 className="text-xl font-black flex items-center gap-2">
-            <ShoppingBag className="text-[#C46C3B]" /> Your Cart ({totalItems})
-          </h2>
-          <button onClick={() => setIsCartOpen(false)} className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
-            <X size={24} />
-          </button>
+    <!-- SLIDE-OUT CART -->
+    <div id="cartOverlay" onclick="toggleCart()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 opacity-0 invisible transition-opacity duration-300"></div>
+    <div id="cartPanel" class="fixed inset-y-0 right-0 w-full sm:w-[400px] bg-white z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col shadow-2xl">
+        <div class="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50/50">
+            <h2 class="text-xl font-black flex items-center gap-2">
+                <i data-lucide="shopping-bag" class="text-[#C46C3B]"></i> Your Cart (<span id="cartHeaderCount">0</span>)
+            </h2>
+            <button onclick="toggleCart()" class="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
         </div>
         
-        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
-          {cartItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center text-gray-500 gap-4 opacity-60">
-              <ShoppingBag size={64} className="text-gray-300" />
-              <p className="text-lg font-medium">Your cart is empty.</p>
-              <button 
-                onClick={() => setIsCartOpen(false)}
-                className="mt-4 px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-full font-bold text-sm transition-colors"
-              >
-                Continue Shopping
-              </button>
+        <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-6 flex flex-col gap-6 no-scrollbar">
+            <!-- Cart items injected via JS -->
+            <div class="flex flex-col items-center justify-center h-full text-center text-gray-500 gap-4 opacity-60">
+                <i data-lucide="shopping-bag" class="w-16 h-16 text-gray-300"></i>
+                <p class="text-lg font-medium">Your cart is empty.</p>
             </div>
-          ) : (
-            cartItems.map(item => (
-              <div key={item.id} className="flex gap-4 items-center bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
-                <img src={item.img} alt={item.name} className="w-20 h-20 object-cover rounded-lg bg-gray-50" />
-                <div className="flex-1">
-                  <h3 className="font-bold text-sm text-gray-900 leading-tight mb-1">{item.name}</h3>
-                  <p className="text-xs text-gray-500 mb-2">Qty: {item.qty}</p>
-                  <p className="font-black text-[#C46C3B]">{item.price.toLocaleString()} ETB</p>
-                </div>
-                <button 
-                  onClick={() => removeFromCart(item.id)}
-                  className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
-                >
-                  <Trash2 size={18} />
-                </button>
-              </div>
-            ))
-          )}
         </div>
 
-        {cartItems.length > 0 && (
-          <div className="p-6 border-t border-gray-100 bg-white">
-            <div className="flex justify-between items-center mb-6">
-              <span className="text-gray-600 font-medium">Subtotal</span>
-              <span className="text-2xl font-black text-gray-900">{cartTotal.toLocaleString()} ETB</span>
+        <div id="cartFooter" class="hidden p-6 border-t border-gray-100 bg-white">
+            <div class="flex justify-between items-center mb-6">
+                <span class="text-gray-600 font-medium">Subtotal</span>
+                <span id="cartTotal" class="text-2xl font-black text-gray-900">0 ETB</span>
             </div>
-            <button className="w-full bg-[#C46C3B] hover:bg-[#a6592f] text-white py-4 rounded-full font-black text-sm tracking-widest uppercase transition-colors shadow-lg shadow-[#C46C3B]/30">
-              Proceed to Checkout
+            <button class="w-full bg-[#C46C3B] hover:bg-[#a6592f] text-white py-4 rounded-full font-black text-sm tracking-widest uppercase transition-colors shadow-lg shadow-[#C46C3B]/30">
+                Proceed to Checkout
             </button>
-          </div>
-        )}
-      </div>
-
-      {/* --- TOAST NOTIFICATION --- */}
-      <div className={`fixed bottom-6 right-6 z-50 transform transition-all duration-300 ${toast ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0 pointer-events-none'}`}>
-        <div className="bg-gray-900 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 font-medium text-sm">
-          <CheckCircle className="text-green-400 w-5 h-5" />
-          {toast}
         </div>
-      </div>
-
-      <main>
-        {/* --- SEQUENTIAL HERO CAROUSEL --- */}
-        <section className="relative w-full h-[70vh] min-h-[500px] flex items-center justify-start bg-gray-900 overflow-hidden">
-          {HERO_IMAGES.map((hero, index) => (
-            <img 
-              key={index}
-              src={hero.url} 
-              alt={hero.title} 
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${index === heroIndex ? 'opacity-60' : 'opacity-0'}`}
-            />
-          ))}
-          
-          <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 w-full text-white">
-            <h1 className="text-5xl sm:text-7xl md:text-8xl font-black leading-none mb-6 tracking-tight drop-shadow-2xl whitespace-pre-line animate-fade-in-up">
-              {HERO_IMAGES[heroIndex].title}
-            </h1>
-            <p className="text-lg sm:text-2xl font-medium mb-10 drop-shadow-md opacity-90 max-w-xl">
-              {HERO_IMAGES[heroIndex].subtitle}
-            </p>
-            <button className="bg-white text-gray-900 hover:bg-[#C46C3B] hover:text-white px-10 py-4 rounded-full font-black text-sm tracking-widest uppercase transition-all duration-300 shadow-xl transform hover:-translate-y-1">
-              Shop The Collection
-            </button>
-          </div>
-
-          {/* Carousel Indicators */}
-          <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-3 z-20">
-            {HERO_IMAGES.map((_, idx) => (
-              <button 
-                key={idx}
-                onClick={() => setHeroIndex(idx)}
-                className={`transition-all duration-300 rounded-full ${idx === heroIndex ? 'w-8 h-2 bg-white' : 'w-2 h-2 bg-white/50 hover:bg-white/80'}`}
-                aria-label={`Go to slide ${idx + 1}`}
-              />
-            ))}
-          </div>
-        </section>
-
-        {/* --- CATEGORIES --- */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8">
-            {CATEGORIES.map((cat, idx) => (
-              <div key={idx} className="relative group cursor-pointer aspect-[4/5] sm:aspect-auto sm:h-80 rounded-3xl overflow-hidden shadow-md">
-                <img 
-                  src={cat.img} 
-                  alt={cat.name} 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex items-end">
-                  <h3 className="text-white font-black text-sm sm:text-lg tracking-widest w-full text-center pb-6 sm:pb-8 uppercase transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                    {cat.name}
-                  </h3>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* --- TRENDING NOW --- */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-          <div className="flex justify-between items-end mb-10">
-            <div>
-              <h2 className="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">Top Rated</h2>
-              <p className="text-gray-500 mt-2 font-medium">Customer favorites right now in Ethiopia.</p>
-            </div>
-            <a href="#" className="hidden sm:inline-block font-bold text-[#C46C3B] hover:text-[#a6592f] border-b-2 border-[#C46C3B] pb-1 uppercase text-sm tracking-widest">View All</a>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {TRENDING_PRODUCTS.map((product) => (
-              <div key={product.id} className="group flex flex-col relative">
-                {/* Product Image Box */}
-                <div className="bg-gray-100 rounded-3xl p-8 mb-5 relative aspect-[4/5] flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:shadow-lg">
-                  <img 
-                    src={product.img} 
-                    alt={product.name} 
-                    className="max-h-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-110"
-                  />
-                  {/* Quick Add Button overlay on hover */}
-                  <div className="absolute inset-x-0 bottom-0 p-4 opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                    <button 
-                      onClick={() => handleAddToCart(product)}
-                      className="w-full bg-[#C46C3B] hover:bg-[#a6592f] text-white py-3 rounded-full font-bold text-xs uppercase tracking-widest shadow-lg flex items-center justify-center gap-2"
-                    >
-                      <ShoppingBag size={16} /> Quick Add
-                    </button>
-                  </div>
-                </div>
-                {/* Product Details */}
-                <div className="px-2">
-                  <h3 className="font-bold text-gray-900 text-lg mb-1 leading-tight hover:text-[#C46C3B] cursor-pointer transition-colors">{product.name}</h3>
-                  <div className="flex items-center gap-1 mb-2">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`w-4 h-4 ${i < Math.floor(product.rating) ? 'fill-amber-400 text-amber-400' : 'text-gray-300'}`} />
-                    ))}
-                    <span className="text-xs text-gray-500 font-medium ml-1">({product.reviews})</span>
-                  </div>
-                  <p className="font-black text-gray-900 text-xl">{product.price.toLocaleString()} ETB</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <button className="sm:hidden w-full mt-8 border-2 border-gray-200 text-gray-900 py-3 rounded-full font-bold uppercase tracking-widest text-sm">
-            View All Products
-          </button>
-        </section>
-
-        {/* --- ETHIOPIA PROMO BANNER --- */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-          <div className="relative rounded-3xl overflow-hidden h-80 sm:h-[400px] flex items-center justify-center text-center group cursor-pointer">
-             <img 
-              src="https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&q=80&w=1200" 
-              alt="Campfire in Ethiopia" 
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-black/50 transition-opacity duration-500 group-hover:bg-black/60"></div>
-            <div className="relative z-10 p-8 max-w-2xl">
-              <p className="text-[#C46C3B] font-black tracking-widest uppercase mb-4 text-sm drop-shadow">Simien Mountains Special</p>
-              <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-8 drop-shadow-lg leading-tight">
-                PREPARE FOR THE HIGHLANDS
-              </h2>
-              <button className="bg-white hover:bg-gray-100 text-gray-900 px-10 py-4 rounded-full font-black text-sm tracking-widest uppercase transition-colors shadow-2xl">
-                Explore The Sale
-              </button>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* --- FOOTER --- */}
-      <footer className="bg-gray-900 text-white pt-20 pb-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 border-b border-gray-800 pb-16">
-          
-          {/* Newsletter */}
-          <div className="md:col-span-4 lg:col-span-5">
-            <div className="flex items-center gap-2 mb-6">
-              <Mountain className="text-[#C46C3B] w-8 h-8" />
-              <span className="font-black text-3xl tracking-tighter uppercase">Lalibela</span>
-            </div>
-            <h3 className="text-lg font-bold mb-3">Join the Adventure</h3>
-            <p className="text-gray-400 text-sm mb-6 max-w-sm leading-relaxed">
-              Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals delivered straight to your inbox.
-            </p>
-            <div className="flex relative max-w-md">
-              <input 
-                type="email" 
-                placeholder="Enter your email address" 
-                className="w-full bg-gray-800 border-none text-white rounded-full pl-6 pr-32 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#C46C3B]"
-              />
-              <button className="absolute right-1 top-1 bottom-1 px-6 bg-[#C46C3B] text-white font-bold text-xs tracking-widest uppercase rounded-full hover:bg-[#a6592f] transition-colors">
-                Subscribe
-              </button>
-            </div>
-          </div>
-
-          {/* Links 1 */}
-          <div className="md:col-span-2 md:col-start-7">
-            <h4 className="font-black text-sm uppercase tracking-widest mb-6 text-gray-500">Shop</h4>
-            <ul className="space-y-4">
-              <li><a href="#" className="text-sm text-gray-300 hover:text-white transition-colors">Men's Apparel</a></li>
-              <li><a href="#" className="text-sm text-gray-300 hover:text-white transition-colors">Women's Apparel</a></li>
-              <li><a href="#" className="text-sm text-gray-300 hover:text-white transition-colors">Footwear</a></li>
-              <li><a href="#" className="text-sm text-gray-300 hover:text-white transition-colors">Camping Gear</a></li>
-              <li><a href="#" className="text-sm text-[#C46C3B] font-bold hover:text-[#a6592f] transition-colors">Special Offers</a></li>
-            </ul>
-          </div>
-
-          {/* Links 2 */}
-          <div className="md:col-span-2">
-            <h4 className="font-black text-sm uppercase tracking-widest mb-6 text-gray-500">Support</h4>
-            <ul className="space-y-4">
-              <li><a href="#" className="text-sm text-gray-300 hover:text-white transition-colors">Contact Us</a></li>
-              <li><a href="#" className="text-sm text-gray-300 hover:text-white transition-colors">Shipping Info</a></li>
-              <li><a href="#" className="text-sm text-gray-300 hover:text-white transition-colors">Returns & Exchanges</a></li>
-              <li><a href="#" className="text-sm text-gray-300 hover:text-white transition-colors">Size Guide</a></li>
-              <li><a href="#" className="text-sm text-gray-300 hover:text-white transition-colors">Track Order</a></li>
-            </ul>
-          </div>
-
-          {/* Contact / Social */}
-          <div className="md:col-span-2">
-             <h4 className="font-black text-sm uppercase tracking-widest mb-6 text-gray-500">Connect</h4>
-             <div className="flex gap-4 mb-8">
-              <a href="#" className="bg-gray-800 p-2 rounded-full text-white hover:bg-[#C46C3B] hover:scale-110 transition-all"><Facebook size={18} /></a>
-              <a href="#" className="bg-gray-800 p-2 rounded-full text-white hover:bg-[#C46C3B] hover:scale-110 transition-all"><Instagram size={18} /></a>
-              <a href="#" className="bg-gray-800 p-2 rounded-full text-white hover:bg-[#C46C3B] hover:scale-110 transition-all"><Twitter size={18} /></a>
-              <a href="#" className="bg-gray-800 p-2 rounded-full text-white hover:bg-[#C46C3B] hover:scale-110 transition-all"><Youtube size={18} /></a>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer Bottom */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-xs font-bold text-gray-500 tracking-widest uppercase">
-            © 2026 LALIBELA OUTDOORS. ADDIS ABABA, ETHIOPIA.
-          </p>
-          
-          {/* ETHIOPIAN PAYMENT METHODS */}
-          <div className="flex items-center gap-3">
-             <span className="text-xs text-gray-500 mr-2">Secure payments via:</span>
-             <div className="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded text-xs font-black tracking-wide text-[#00a651]">telebirr</div>
-             <div className="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded text-xs font-black tracking-wide text-[#6c287a]">CBE BIRR</div>
-             <div className="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded text-xs font-black tracking-wide text-[#f47b20]">awash</div>
-             <div className="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded text-xs font-black tracking-wide text-white">Chapa</div>
-          </div>
-        </div>
-      </footer>
     </div>
-  );
-}
 
+    <!-- TOAST NOTIFICATION -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-10 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-gray-900 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 font-medium text-sm">
+            <i data-lucide="check-circle" class="text-green-400 w-5 h-5"></i>
+            <span id="toastMessage">Item added to cart!</span>
+        </div>
+    </div>
+
+    <main>
+        <!-- SEQUENTIAL HERO CAROUSEL -->
+        <section class="relative w-full h-[70vh] min-h-[500px] flex items-center justify-start bg-gray-900 overflow-hidden">
+            <!-- Images are handled by JS to cycle them -->
+            <img id="heroImg1" src="https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&q=80&w=1600" class="absolute inset-0 w-full h-full object-cover opacity-60 transition-opacity duration-1000 ease-in-out">
+            <img id="heroImg2" src="https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&q=80&w=1600" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000 ease-in-out">
+            <img id="heroImg3" src="https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&q=80&w=1600" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000 ease-in-out">
+            
+            <div class="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 w-full text-white">
+                <h1 id="heroTitle" class="text-5xl sm:text-7xl md:text-8xl font-black leading-none mb-6 tracking-tight drop-shadow-2xl whitespace-pre-line fade-in">
+                    EMBRACE<br>THE WILD
+                </h1>
+                <p id="heroSubtitle" class="text-lg sm:text-2xl font-medium mb-10 drop-shadow-md opacity-90 max-w-xl fade-in">
+                    Discover the New Autumn Collection
+                </p>
+                <button class="bg-white text-gray-900 hover:bg-[#C46C3B] hover:text-white px-10 py-4 rounded-full font-black text-sm tracking-widest uppercase transition-all duration-300 shadow-xl transform hover:-translate-y-1">
+                    Shop The Collection
+                </button>
+            </div>
+
+            <!-- Carousel Indicators -->
+            <div class="absolute bottom-8 left-0 right-0 flex justify-center gap-3 z-20" id="carouselIndicators">
+                <button onclick="setHeroSlide(0)" class="w-8 h-2 bg-white rounded-full transition-all duration-300"></button>
+                <button onclick="setHeroSlide(1)" class="w-2 h-2 bg-white/50 hover:bg-white/80 rounded-full transition-all duration-300"></button>
+                <button onclick="setHeroSlide(2)" class="w-2 h-2 bg-white/50 hover:bg-white/80 rounded-full transition-all duration-300"></button>
+            </div>
+        </section>
+
+        <!-- CATEGORIES -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8" id="categoriesContainer">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- TRENDING NOW -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+            <div class="flex justify-between items-end mb-10">
+                <div>
+                    <h2 class="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">Top Rated</h2>
+                    <p class="text-gray-500 mt-2 font-medium">Customer favorites right now in Ethiopia.</p>
+                </div>
+                <a href="#" class="hidden sm:inline-block font-bold text-[#C46C3B] hover:text-[#a6592f] border-b-2 border-[#C46C3B] pb-1 uppercase text-sm tracking-widest">View All</a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" id="productsContainer">
+                <!-- Products Injected via JS -->
+            </div>
+        </section>
+
+        <!-- ETHIOPIA PROMO BANNER -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+            <div class="relative rounded-3xl overflow-hidden h-80 sm:h-[400px] flex items-center justify-center text-center group cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&q=80&w=1200" alt="Campfire in Ethiopia" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105">
+                <div class="absolute inset-0 bg-black/50 transition-opacity duration-500 group-hover:bg-black/60"></div>
+                <div class="relative z-10 p-8 max-w-2xl">
+                    <p class="text-[#C46C3B] font-black tracking-widest uppercase mb-4 text-sm drop-shadow">Simien Mountains Special</p>
+                    <h2 class="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-8 drop-shadow-lg leading-tight">
+                        PREPARE FOR THE HIGHLANDS
+                    </h2>
+                    <button class="bg-white hover:bg-gray-100 text-gray-900 px-10 py-4 rounded-full font-black text-sm tracking-widest uppercase transition-colors shadow-2xl">
+                        Explore The Sale
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-900 text-white pt-20 pb-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 border-b border-gray-800 pb-16">
+            <!-- Newsletter -->
+            <div class="md:col-span-4 lg:col-span-5">
+                <div class="flex items-center gap-2 mb-6">
+                    <i data-lucide="mountain" class="text-[#C46C3B] w-8 h-8"></i>
+                    <span class="font-black text-3xl tracking-tighter uppercase">Lalibela</span>
+                </div>
+                <h3 class="text-lg font-bold mb-3">Join the Adventure</h3>
+                <p class="text-gray-400 text-sm mb-6 max-w-sm leading-relaxed">
+                    Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals delivered straight to your inbox.
+                </p>
+                <div class="flex relative max-w-md">
+                    <input type="email" placeholder="Enter your email" class="w-full bg-gray-800 border-none text-white rounded-full pl-6 pr-32 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#C46C3B]">
+                    <button class="absolute right-1 top-1 bottom-1 px-6 bg-[#C46C3B] text-white font-bold text-xs tracking-widest uppercase rounded-full hover:bg-[#a6592f] transition-colors">
+                        Subscribe
+                    </button>
+                </div>
+            </div>
+            <!-- Links 1 -->
+            <div class="md:col-span-2 md:col-start-7">
+                <h4 class="font-black text-sm uppercase tracking-widest mb-6 text-gray-500">Shop</h4>
+                <ul class="space-y-4">
+                    <li><a href="#" class="text-sm text-gray-300 hover:text-white transition-colors">Men's Apparel</a></li>
+                    <li><a href="#" class="text-sm text-gray-300 hover:text-white transition-colors">Women's Apparel</a></li>
+                    <li><a href="#" class="text-sm text-gray-300 hover:text-white transition-colors">Footwear</a></li>
+                    <li><a href="#" class="text-sm text-[#C46C3B] font-bold hover:text-[#a6592f] transition-colors">Special Offers</a></li>
+                </ul>
+            </div>
+            <!-- Links 2 -->
+            <div class="md:col-span-2">
+                <h4 class="font-black text-sm uppercase tracking-widest mb-6 text-gray-500">Support</h4>
+                <ul class="space-y-4">
+                    <li><a href="#" class="text-sm text-gray-300 hover:text-white transition-colors">Contact Us</a></li>
+                    <li><a href="#" class="text-sm text-gray-300 hover:text-white transition-colors">Shipping Info</a></li>
+                    <li><a href="#" class="text-sm text-gray-300 hover:text-white transition-colors">Returns</a></li>
+                    <li><a href="#" class="text-sm text-gray-300 hover:text-white transition-colors">Size Guide</a></li>
+                </ul>
+            </div>
+            <!-- Social -->
+            <div class="md:col-span-2">
+                <h4 class="font-black text-sm uppercase tracking-widest mb-6 text-gray-500">Connect</h4>
+                <div class="flex gap-4 mb-8">
+                    <a href="#" class="bg-gray-800 p-2 rounded-full text-white hover:bg-[#C46C3B] hover:scale-110 transition-all"><i data-lucide="facebook" class="w-4 h-4"></i></a>
+                    <a href="#" class="bg-gray-800 p-2 rounded-full text-white hover:bg-[#C46C3B] hover:scale-110 transition-all"><i data-lucide="instagram" class="w-4 h-4"></i></a>
+                    <a href="#" class="bg-gray-800 p-2 rounded-full text-white hover:bg-[#C46C3B] hover:scale-110 transition-all"><i data-lucide="twitter" class="w-4 h-4"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+            <p class="text-xs font-bold text-gray-500 tracking-widest uppercase">
+                © 2026 LALIBELA OUTDOORS. ADDIS ABABA, ETHIOPIA.
+            </p>
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-gray-500 mr-2">Secure payments via:</span>
+                <div class="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded text-xs font-black tracking-wide text-[#00a651]">telebirr</div>
+                <div class="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded text-xs font-black tracking-wide text-[#6c287a]">CBE BIRR</div>
+                <div class="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded text-xs font-black tracking-wide text-[#f47b20]">awash</div>
+                <div class="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded text-xs font-black tracking-wide text-white">Chapa</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic (No build required!) -->
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Data
+        const HERO_DATA = [
+            { title: "EMBRACE<br>THE WILD", subtitle: "Discover the New Autumn Collection" },
+            { title: "PREMIUM<br>APPAREL", subtitle: "Built for the Ethiopian Highlands" },
+            { title: "GEAR UP<br>FOR ADVENTURE", subtitle: "Everything you need for the outdoors" }
+        ];
+
+        const CATEGORIES = [
+            { name: 'APPAREL', img: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&q=80&w=400' },
+            { name: 'FOOTWEAR', img: 'https://images.unsplash.com/photo-1520639888713-7851133b1ed0?auto=format&fit=crop&q=80&w=400' },
+            { name: 'ACCESSORIES', img: 'https://images.unsplash.com/photo-1502280203590-50d4d29c878b?auto=format&fit=crop&q=80&w=400' },
+            { name: 'CAMPING GEAR', img: 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&q=80&w=400' },
+        ];
+
+        const PRODUCTS = [
+            { id: 1, name: 'Lalibela Tech Jacket', rating: 4, reviews: 12, price: 5800, img: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&q=80&w=400' },
+            { id: 2, name: 'Bale Mountain Boots', rating: 5, reviews: 34, price: 7200, img: 'https://images.unsplash.com/photo-1608667508764-33cf0726b13a?auto=format&fit=crop&q=80&w=400' },
+            { id: 3, name: 'Simien Trekking Bag', rating: 5, reviews: 18, price: 4500, img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=400' },
+            { id: 4, name: 'Thermal Water Flask', rating: 5, reviews: 55, price: 1200, img: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&q=80&w=400' }
+        ];
+
+        let cart = [];
+        let currentSlide = 0;
+
+        // Render Categories
+        const catContainer = document.getElementById('categoriesContainer');
+        CATEGORIES.forEach(cat => {
+            catContainer.innerHTML += `
+                <div class="relative group cursor-pointer aspect-[4/5] sm:aspect-auto sm:h-80 rounded-3xl overflow-hidden shadow-md">
+                    <img src="${cat.img}" alt="${cat.name}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex items-end">
+                        <h3 class="text-white font-black text-sm sm:text-lg tracking-widest w-full text-center pb-6 sm:pb-8 uppercase transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                            ${cat.name}
+                        </h3>
+                    </div>
+                </div>
+            `;
+        });
+
+        // Render Products
+        const prodContainer = document.getElementById('productsContainer');
+        PRODUCTS.forEach(p => {
+            let starsHtml = '';
+            for(let i=0; i<5; i++) {
+                starsHtml += `<i data-lucide="star" class="w-4 h-4 ${i < p.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}"></i>`;
+            }
+            
+            prodContainer.innerHTML += `
+                <div class="group flex flex-col relative">
+                    <div class="bg-gray-100 rounded-3xl p-8 mb-5 relative aspect-[4/5] flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:shadow-lg">
+                        <img src="${p.img}" alt="${p.name}" class="max-h-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-x-0 bottom-0 p-4 opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                            <button onclick="addToCart(${p.id})" class="w-full bg-[#C46C3B] hover:bg-[#a6592f] text-white py-3 rounded-full font-bold text-xs uppercase tracking-widest shadow-lg flex items-center justify-center gap-2">
+                                <i data-lucide="shopping-bag" class="w-4 h-4"></i> Quick Add
+                            </button>
+                        </div>
+                    </div>
+                    <div class="px-2">
+                        <h3 class="font-bold text-gray-900 text-lg mb-1 leading-tight hover:text-[#C46C3B] cursor-pointer transition-colors">${p.name}</h3>
+                        <div class="flex items-center gap-1 mb-2">
+                            ${starsHtml}
+                            <span class="text-xs text-gray-500 font-medium ml-1">(${p.reviews})</span>
+                        </div>
+                        <p class="font-black text-gray-900 text-xl">${p.price.toLocaleString()} ETB</p>
+                    </div>
+                </div>
+            `;
+        });
+        lucide.createIcons(); // Re-initialize icons for newly injected HTML
+
+        // UI Toggles
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const overlay = document.getElementById('mobileOverlay');
+            if(menu.classList.contains('-translate-x-full')) {
+                menu.classList.remove('-translate-x-full');
+                overlay.classList.remove('opacity-0', 'invisible');
+                overlay.classList.add('opacity-100', 'visible');
+            } else {
+                menu.classList.add('-translate-x-full');
+                overlay.classList.remove('opacity-100', 'visible');
+                overlay.classList.add('opacity-0', 'invisible');
+            }
+        }
+
+        function toggleCart() {
+            const panel = document.getElementById('cartPanel');
+            const overlay = document.getElementById('cartOverlay');
+            if(panel.classList.contains('translate-x-full')) {
+                panel.classList.remove('translate-x-full');
+                overlay.classList.remove('opacity-0', 'invisible');
+                overlay.classList.add('opacity-100', 'visible');
+                renderCart();
+            } else {
+                panel.classList.add('translate-x-full');
+                overlay.classList.remove('opacity-100', 'visible');
+                overlay.classList.add('opacity-0', 'invisible');
+            }
+        }
+
+        // Cart Logic
+        function addToCart(id) {
+            const product = PRODUCTS.find(p => p.id === id);
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ ...product, qty: 1 });
+            }
+            
+            updateCartBadge();
+            showToast(`Added ${product.name} to cart!`);
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            updateCartBadge();
+            renderCart();
+        }
+
+        function updateCartBadge() {
+            const badge = document.getElementById('cartBadge');
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            if(totalQty > 0) {
+                badge.textContent = totalQty;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItemsContainer');
+            const footer = document.getElementById('cartFooter');
+            const totalEl = document.getElementById('cartTotal');
+            const headerCount = document.getElementById('cartHeaderCount');
+            
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            
+            headerCount.textContent = totalQty;
+            
+            if(cart.length === 0) {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-center text-gray-500 gap-4 opacity-60 mt-10">
+                        <i data-lucide="shopping-bag" class="w-16 h-16 text-gray-300"></i>
+                        <p class="text-lg font-medium">Your cart is empty.</p>
+                    </div>`;
+                footer.classList.add('hidden');
+            } else {
+                let html = '';
+                cart.forEach(item => {
+                    html += `
+                        <div class="flex gap-4 items-center bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                            <img src="${item.img}" class="w-20 h-20 object-cover rounded-lg bg-gray-50">
+                            <div class="flex-1">
+                                <h3 class="font-bold text-sm text-gray-900 leading-tight mb-1">${item.name}</h3>
+                                <p class="text-xs text-gray-500 mb-2">Qty: ${item.qty}</p>
+                                <p class="font-black text-[#C46C3B]">${item.price.toLocaleString()} ETB</p>
+                            </div>
+                            <button onclick="removeFromCart(${item.id})" class="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all">
+                                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+                totalEl.textContent = `${totalPrice.toLocaleString()} ETB`;
+                footer.classList.remove('hidden');
+            }
+            lucide.createIcons();
+        }
+
+        // Search Logic
+        function handleSearch(query) {
+            const resContainer = document.getElementById('searchResults');
+            if(!query) {
+                resContainer.classList.add('hidden');
+                return;
+            }
+            
+            const filtered = PRODUCTS.filter(p => p.name.toLowerCase().includes(query.toLowerCase()));
+            
+            if(filtered.length > 0) {
+                let html = '';
+                filtered.forEach(p => {
+                    html += `
+                        <div onclick="document.getElementById('searchInput').value=''; document.getElementById('searchResults').classList.add('hidden'); addToCart(${p.id});" class="flex items-center gap-4 p-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-50 last:border-0">
+                            <img src="${p.img}" class="w-10 h-10 object-cover rounded">
+                            <div>
+                                <p class="text-sm font-bold">${p.name}</p>
+                                <p class="text-xs text-[#C46C3B] font-bold">${p.price.toLocaleString()} ETB</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                resContainer.innerHTML = html;
+            } else {
+                resContainer.innerHTML = `<div class="p-4 text-sm text-gray-500 text-center">No products found.</div>`;
+            }
+            resContainer.classList.remove('hidden');
+        }
+
+        // Toast Notification
+        function showToast(msg) {
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastMessage').textContent = msg;
+            toast.classList.remove('translate-y-10', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        // Hero Carousel Logic
+        function setHeroSlide(index) {
+            currentSlide = index;
+            document.getElementById('heroImg1').style.opacity = index === 0 ? '0.6' : '0';
+            document.getElementById('heroImg2').style.opacity = index === 1 ? '0.6' : '0';
+            document.getElementById('heroImg3').style.opacity = index === 2 ? '0.6' : '0';
+            
+            document.getElementById('heroTitle').innerHTML = HERO_DATA[index].title;
+            document.getElementById('heroSubtitle').innerHTML = HERO_DATA[index].subtitle;
+
+            // Update indicators
+            const buttons = document.getElementById('carouselIndicators').children;
+            for(let i=0; i<3; i++) {
+                if(i === index) {
+                    buttons[i].className = "w-8 h-2 bg-white rounded-full transition-all duration-300";
+                } else {
+                    buttons[i].className = "w-2 h-2 bg-white/50 hover:bg-white/80 rounded-full transition-all duration-300";
+                }
+            }
+        }
+
+        // Auto change slide every 5s
+        setInterval(() => {
+            currentSlide = (currentSlide + 1) % 3;
+            setHeroSlide(currentSlide);
+        }, 5000);
+
+    </script>
+</body>
+</html>
 
 ```
+

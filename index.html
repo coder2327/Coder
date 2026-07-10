@@ -3,948 +3,808 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lalibela - E-commerce System</title>
+    <title>Lalibela | Complete E-Commerce Ecosystem</title>
     <style>
         /* ==========================================================================
-           1. CSS VARIABLES & BASE SETUP
+           1. CSS VARIABLES & RESET
            ========================================================================== */
         :root {
-            --primary: #7c3aed; /* Purple from the NovaShop design */
-            --primary-light: #8b5cf6;
-            --primary-fade: rgba(124, 58, 237, 0.1);
-            --secondary: #ec4899; /* Pink/Red for tags */
-            --bg-main: #f3f4f6;
-            --bg-panel: #ffffff;
-            --text-dark: #1f2937;
-            --text-muted: #6b7280;
-            --border-color: #e5e7eb;
+            --primary: #7c3aed; /* Deep purple from UI */
+            --primary-hover: #6d28d9;
+            --primary-light: #ede9fe;
+            --secondary: #ec4899; /* Pink accent */
+            --bg-body: #f8fafc;
+            --bg-surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-light: #e2e8f0;
             --success: #10b981;
             --danger: #ef4444;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --shadow-beautiful: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --warning: #f59e0b;
+            --sidebar-width: 280px;
+            --cart-width: 360px;
+            --header-height: 70px;
+            --radius-sm: 8px;
             --radius-md: 12px;
             --radius-lg: 20px;
-            --radius-full: 9999px;
-            --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            --sidebar-width: 260px;
-            --cart-width: 350px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: var(--font-family);
-            background-color: var(--bg-main);
-            color: var(--text-dark);
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-        }
-
-        button { cursor: pointer; border: none; outline: none; background: none; font-family: inherit; }
-        input, select, textarea { font-family: inherit; }
+        body { font-family: var(--font-main); background: var(--bg-body); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; }
+        button { cursor: pointer; border: none; background: none; font-family: inherit; transition: var(--transition); }
+        input, select, textarea { font-family: inherit; outline: none; }
         ul { list-style: none; }
-        a { text-decoration: none; color: inherit; }
+        a { text-decoration: none; color: inherit; cursor: pointer; }
 
         /* ==========================================================================
-           2. LAYOUT STRUCTURE
+           2. LAYOUT APP CONTAINER
            ========================================================================== */
-        #app-container {
-            display: flex;
-            width: 100%;
-            height: 100%;
-        }
+        #app { display: flex; width: 100%; height: 100%; position: relative; }
 
-        /* --- Sidebar (Image 1 Reference) --- */
+        /* ==========================================================================
+           3. SIDEBAR / HAMBURGER MENU (Ref: Latest Image)
+           ========================================================================== */
         #sidebar {
-            width: var(--sidebar-width);
-            background-color: var(--bg-panel);
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid var(--border-color);
-            padding: 20px 15px;
-            overflow-y: auto;
-            transition: all 0.3s ease;
-            z-index: 10;
+            width: var(--sidebar-width); background: var(--bg-surface);
+            border-right: 1px solid var(--border-light);
+            display: flex; flex-direction: column; height: 100%;
+            overflow-y: auto; transition: var(--transition); z-index: 50;
         }
 
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            margin-bottom: 20px;
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
+        /* Profile Area */
+        .sidebar-profile { padding: 24px 20px; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; gap: 16px; }
+        .profile-avatar { width: 50px; height: 50px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; overflow: hidden; }
+        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-info { flex: 1; }
+        .profile-name { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+        .profile-edit { font-size: 13px; color: var(--primary); font-weight: 500; }
+
+        /* Wallet Card */
+        .sidebar-wallet { margin: 20px; padding: 16px; background: linear-gradient(135deg, var(--primary), var(--primary-hover)); border-radius: var(--radius-md); color: white; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3); }
+        .wallet-label { font-size: 12px; opacity: 0.9; margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .wallet-balance { font-size: 24px; font-weight: 700; }
         
-        .logo-icon {
-            width: 30px; height: 30px;
-            background: var(--primary);
-            border-radius: 8px;
-            display: flex; justify-content: center; align-items: center;
-            color: white; font-size: 16px;
-        }
-
-        .nav-section { margin-bottom: 20px; }
-        .nav-item {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 15px;
-            border-radius: var(--radius-md);
-            color: var(--text-muted);
-            font-weight: 500;
-            transition: all 0.2s;
-            margin-bottom: 5px;
-            cursor: pointer;
-        }
-        .nav-item:hover, .nav-item.active {
-            background-color: var(--primary-fade);
-            color: var(--primary);
-        }
-        .nav-item-left { display: flex; align-items: center; gap: 12px; }
-        .nav-icon { width: 20px; text-align: center; font-size: 18px; }
-        .nav-badge {
-            background: var(--secondary); color: white;
-            font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: bold;
-        }
-
-        .promo-banner {
-            background: linear-gradient(135deg, var(--primary-light), var(--primary));
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            color: white;
-            text-align: center;
-            margin: 20px 0;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-md);
-        }
-        .promo-banner h4 { font-size: 14px; opacity: 0.9; margin-bottom: 5px; }
-        .promo-banner h2 { font-size: 20px; margin-bottom: 15px; }
-        .promo-banner button {
-            background: white; color: var(--primary);
-            padding: 8px 16px; border-radius: var(--radius-full);
-            font-weight: 600; font-size: 14px;
-        }
-
-        .sidebar-footer { margin-top: auto; padding-top: 20px; }
-        .support-btn, .theme-toggle {
-            display: flex; align-items: center; gap: 10px;
-            padding: 12px; border-radius: var(--radius-md);
-            background: var(--bg-main);
-            color: var(--text-dark); font-weight: 500; font-size: 14px;
-            width: 100%; margin-bottom: 10px;
-        }
-
-        /* --- Main Content Area --- */
-        #main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        .top-header {
-            height: 70px;
-            background: var(--bg-panel);
-            border-bottom: 1px solid var(--border-color);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 30px;
-            position: sticky; top: 0; z-index: 5;
-        }
+        /* Navigation Links */
+        .sidebar-nav { padding: 10px 20px; flex: 1; }
+        .nav-group { margin-bottom: 24px; }
+        .nav-group-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; font-weight: 600; }
+        .nav-item { display: flex; align-items: center; gap: 14px; padding: 12px 16px; margin-bottom: 4px; border-radius: var(--radius-sm); color: var(--text-main); font-weight: 500; cursor: pointer; }
+        .nav-item:hover, .nav-item.active { background: var(--primary-light); color: var(--primary); }
+        .nav-icon { width: 22px; height: 22px; fill: currentColor; display: flex; align-items: center; justify-content: center; }
         
-        .header-left .search-bar {
-            background: var(--bg-main);
-            border-radius: var(--radius-full);
-            padding: 10px 20px; width: 300px;
-            border: 1px solid var(--border-color);
-        }
+        .logout-btn { margin: 20px; padding: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--danger); background: #fee2e2; border-radius: var(--radius-md); font-weight: 600; }
+        .logout-btn:hover { background: #fca5a5; color: white; }
 
+        /* ==========================================================================
+           4. MAIN CONTENT & HEADER
+           ========================================================================== */
+        #main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100%; position: relative; background: var(--bg-body); }
+        
+        #header { height: var(--header-height); background: var(--bg-surface); border-bottom: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .brand { font-size: 22px; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
+        .search-box { display: flex; align-items: center; background: var(--bg-body); border: 1px solid var(--border-light); border-radius: 99px; padding: 8px 16px; width: 350px; transition: var(--transition); }
+        .search-box:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+        .search-box input { border: none; background: transparent; flex: 1; padding: 4px; font-size: 14px; }
+        
         .header-right { display: flex; align-items: center; gap: 20px; }
-        .action-icon {
-            font-size: 20px; color: var(--text-muted); cursor: pointer;
-            position: relative;
-        }
-        .action-badge {
-            position: absolute; top: -5px; right: -8px;
-            background: var(--danger); color: white; font-size: 10px;
-            width: 16px; height: 16px; border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-        }
-        .user-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .avatar { width: 35px; height: 35px; border-radius: 50%; background: #ccc; overflow: hidden; }
-        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .icon-btn { position: relative; width: 40px; height: 40px; border-radius: 50%; background: var(--bg-body); display: flex; align-items: center; justify-content: center; color: var(--text-main); }
+        .icon-btn:hover { background: var(--primary-light); color: var(--primary); }
+        .badge { position: absolute; top: -2px; right: -2px; background: var(--danger); color: white; font-size: 10px; font-weight: bold; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-surface); }
+        .auth-cta { background: var(--primary); color: white; padding: 10px 24px; border-radius: 99px; font-weight: 600; font-size: 14px; }
 
-        .view-section { display: none; padding: 30px; animation: fadeIn 0.4s ease; }
-        .view-section.active { display: block; }
-
-        /* --- Cart Panel (Image 2 & 3 Reference) --- */
-        #cart-panel {
-            width: var(--cart-width);
-            background-color: var(--bg-panel);
-            height: 100%;
-            border-left: 1px solid var(--border-color);
-            display: none; /* Hidden for visitor, shown for user */
-            flex-direction: column;
-            box-shadow: -5px 0 15px rgba(0,0,0,0.03);
-            z-index: 10;
-        }
-
-        .cart-header {
-            padding: 20px; border-bottom: 1px solid var(--border-color);
-            display: flex; justify-content: space-between; align-items: center;
-            font-size: 18px; font-weight: 600;
-        }
-
-        .cart-items { flex: 1; overflow-y: auto; padding: 20px; }
-        .cart-item {
-            display: flex; gap: 15px; margin-bottom: 20px;
-            background: var(--bg-main); padding: 10px; border-radius: var(--radius-md);
-            position: relative;
-        }
-        .item-img {
-            width: 70px; height: 70px; background: white; border-radius: 8px;
-            display: flex; justify-content: center; align-items: center; font-size: 24px;
-        }
-        .item-details { flex: 1; }
-        .item-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
-        .item-desc { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
-        .item-price { font-weight: 700; color: var(--text-dark); }
-        .item-actions {
-            display: flex; align-items: center; justify-content: space-between; margin-top: 10px;
-        }
-        .qty-control {
-            display: flex; align-items: center; gap: 10px;
-            background: white; border-radius: var(--radius-full); padding: 2px 8px;
-            border: 1px solid var(--border-color);
-        }
-        .qty-btn { font-size: 16px; font-weight: bold; color: var(--text-muted); }
-
-        .cart-summary { padding: 20px; border-top: 1px solid var(--border-color); background: white; }
-        .promo-input { display: flex; gap: 10px; margin-bottom: 20px; }
-        .promo-input input {
-            flex: 1; padding: 10px; border: 1px solid var(--border-color);
-            border-radius: var(--radius-md); background: var(--bg-main);
-        }
-        .promo-input button {
-            background: var(--primary); color: white; padding: 0 20px;
-            border-radius: var(--radius-md); font-weight: 600;
-        }
-        .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: var(--text-muted); }
-        .summary-total { display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border-color); font-size: 18px; font-weight: bold; color: var(--text-dark); }
-        .checkout-btn {
-            width: 100%; background: var(--primary); color: white;
-            padding: 15px; border-radius: var(--radius-md); font-size: 16px; font-weight: 600;
-            margin-top: 20px; display: flex; justify-content: center; gap: 10px;
-            box-shadow: 0 4px 10px var(--primary-fade);
-        }
+        /* View Container */
+        #view-container { flex: 1; overflow-y: auto; padding: 30px; position: relative; }
+        .view { display: none; animation: fadeIn 0.4s ease; }
+        .view.active { display: block; }
 
         /* ==========================================================================
-           3. SPECIFIC VIEWS (Visitor, User, Admin)
+           5. VIEW: AUTHENTICATION (Sign Up / Login Page)
            ========================================================================== */
-        /* Common Grid for Products */
-        .grid-header { display: flex; justify-content: space-between; margin-bottom: 20px; align-items: center; }
-        .product-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;
-        }
-        .product-card {
-            background: var(--bg-panel); border-radius: var(--radius-lg); padding: 15px;
-            box-shadow: var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s;
-            position: relative;
-        }
-        .product-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
-        .product-image {
-            height: 150px; background: var(--bg-main); border-radius: var(--radius-md);
-            margin-bottom: 15px; display: flex; justify-content: center; align-items: center; font-size: 40px;
-        }
-        .product-info h3 { font-size: 16px; margin-bottom: 5px; }
-        .product-info p { color: var(--text-muted); font-size: 13px; margin-bottom: 10px; }
-        .product-price-row { display: flex; justify-content: space-between; align-items: center; }
-        .price { font-size: 18px; font-weight: bold; }
-        .add-to-cart-btn {
-            background: var(--primary); color: white; width: 30px; height: 30px;
-            border-radius: 50%; display: flex; justify-content: center; align-items: center;
-        }
-
-        /* User Specific Areas */
-        .user-panel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
-        .beautiful-card {
-            background: white; padding: 25px; border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md); border-top: 4px solid var(--primary);
-        }
-        .beautiful-card h2 { margin-bottom: 15px; font-size: 18px; display: flex; align-items: center; gap: 10px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: 500; }
-        .form-group input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-main); }
-        .btn-action { background: var(--primary); color: white; padding: 10px 20px; border-radius: var(--radius-md); font-weight: bold; width: 100%; }
-
-        /* Admin Specific Areas */
-        .admin-dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
-        .stat-card {
-            background: white; padding: 20px; border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 20px;
-        }
-        .stat-icon { width: 50px; height: 50px; border-radius: 50%; background: var(--primary-fade); color: var(--primary); display: flex; justify-content: center; align-items: center; font-size: 24px; }
-        .stat-info h4 { color: var(--text-muted); font-size: 14px; margin-bottom: 5px; }
-        .stat-info h2 { font-size: 24px; color: var(--text-dark); }
-
-        .admin-tables { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        #view-auth { padding: 0; height: 100%; display: none; }
+        #view-auth.active { display: flex; }
+        .auth-layout { display: flex; width: 100%; height: 100%; }
+        .auth-banner { flex: 1; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; flex-direction: column; justify-content: center; padding: 60px; color: white; position: relative; overflow: hidden; }
+        .auth-banner h1 { font-size: 48px; font-weight: 800; margin-bottom: 20px; z-index: 2; }
+        .auth-banner p { font-size: 18px; opacity: 0.9; max-width: 400px; line-height: 1.6; z-index: 2; }
+        .auth-banner::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%); z-index: 1; animation: rotate 20s linear infinite; }
         
-        /* The "Beautiful Frame" for tracking */
-        .tracking-frame {
-            background: linear-gradient(145deg, #ffffff, #f3f4f6);
-            border-radius: var(--radius-lg); padding: 25px;
-            box-shadow: inset 0 2px 4px 0 rgba(255,255,255,0.5), var(--shadow-beautiful);
-            border: 1px solid rgba(124, 58, 237, 0.2);
-            position: relative; overflow: hidden;
-        }
-        .tracking-frame::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-        }
-        .chart-placeholder {
-            height: 200px; margin-top: 20px; display: flex; align-items: flex-end; gap: 10px;
-            padding-bottom: 20px; border-bottom: 1px solid var(--border-color);
-        }
-        .bar { flex: 1; background: var(--primary); border-radius: 5px 5px 0 0; opacity: 0.8; transition: height 0.5s; position: relative; }
-        .bar:hover { opacity: 1; cursor: pointer; }
-        .bar::after { content: attr(data-val); position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: bold; opacity: 0; transition: opacity 0.2s; }
-        .bar:hover::after { opacity: 1; }
-
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .data-table th, .data-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
-        .data-table th { color: var(--text-muted); font-weight: 500; font-size: 14px; }
-        .status-badge { padding: 4px 10px; border-radius: var(--radius-full); font-size: 12px; font-weight: bold; }
-        .status-reported { background: #fee2e2; color: var(--danger); }
-        .status-active { background: #d1fae5; color: var(--success); }
+        .auth-form-container { width: 500px; background: var(--bg-surface); padding: 60px 50px; display: flex; flex-direction: column; justify-content: center; overflow-y: auto; }
+        .auth-header { margin-bottom: 40px; }
+        .auth-header h2 { font-size: 28px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
+        .auth-header p { color: var(--text-muted); font-size: 15px; }
+        
+        .auth-tabs { display: flex; gap: 20px; border-bottom: 2px solid var(--border-light); margin-bottom: 30px; }
+        .auth-tab { padding-bottom: 12px; font-size: 16px; font-weight: 600; color: var(--text-muted); cursor: pointer; position: relative; }
+        .auth-tab.active { color: var(--primary); }
+        .auth-tab.active::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px; background: var(--primary); }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
+        .form-group input { width: 100%; padding: 14px; border: 1px solid var(--border-light); border-radius: var(--radius-md); font-size: 15px; transition: var(--transition); background: #f8fafc; }
+        .form-group input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px var(--primary-light); }
+        
+        .btn-submit { width: 100%; padding: 16px; background: var(--primary); color: white; font-size: 16px; font-weight: 700; border-radius: var(--radius-md); margin-top: 10px; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3); }
+        .btn-submit:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4); }
 
         /* ==========================================================================
-           4. MODALS & POPUPS (The "Beautiful Interactive Frames")
+           6. VIEW: HOME / PRODUCTS
            ========================================================================== */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(5px);
-            display: none; justify-content: center; align-items: center; z-index: 100;
-            animation: fadeIn 0.3s;
-        }
-        .modal-content {
-            background: white; border-radius: var(--radius-lg); width: 400px;
-            max-width: 90%; padding: 30px; box-shadow: var(--shadow-beautiful);
-            position: relative; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .close-modal { position: absolute; top: 20px; right: 20px; font-size: 20px; color: var(--text-muted); }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .section-title { font-size: 24px; font-weight: 700; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; }
         
-        .modal-header { text-align: center; margin-bottom: 25px; }
-        .modal-header h2 { color: var(--primary); font-size: 24px; margin-bottom: 5px; }
+        .product-card { background: var(--bg-surface); border-radius: var(--radius-md); border: 1px solid var(--border-light); overflow: hidden; transition: var(--transition); position: relative; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: var(--primary-light); }
+        .product-img { height: 200px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 60px; }
+        .product-info { padding: 16px; }
+        .product-category { font-size: 12px; color: var(--primary); font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+        .product-title { font-size: 16px; font-weight: 600; color: var(--text-main); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .product-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+        .product-price { font-size: 18px; font-weight: 800; color: var(--text-main); }
+        .btn-add-cart { width: 36px; height: 36px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .btn-add-cart:hover { background: var(--primary); color: white; }
+
+        /* ==========================================================================
+           7. VIEW: HOW IT WORKS
+           ========================================================================== */
+        .hiw-header { text-align: center; margin-bottom: 40px; padding: 40px; background: linear-gradient(135deg, #f8fafc, #ede9fe); border-radius: var(--radius-lg); }
+        .hiw-header h1 { font-size: 32px; color: var(--primary); margin-bottom: 10px; }
+        .hiw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        .hiw-card { background: var(--bg-surface); padding: 30px; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); border-top: 4px solid var(--primary); }
+        .hiw-card h2 { font-size: 22px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .step-list { display: flex; flex-direction: column; gap: 20px; }
+        .step-item { display: flex; gap: 16px; }
+        .step-num { width: 32px; height: 32px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
+        .step-content h4 { font-size: 16px; margin-bottom: 4px; }
+        .step-content p { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+
+        /* ==========================================================================
+           8. VIEW: ADMIN DASHBOARD (System Management)
+           ========================================================================== */
+        .admin-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--bg-surface); padding: 24px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border-left: 4px solid var(--primary); }
+        .stat-card h3 { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
+        .stat-card .value { font-size: 28px; font-weight: 800; color: var(--text-main); }
         
-        .auth-switch { display: flex; justify-content: center; gap: 10px; margin-top: 20px; font-size: 14px; }
-        .auth-switch a { color: var(--primary); font-weight: bold; cursor: pointer; }
+        .admin-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+        .admin-panel { background: var(--bg-surface); border-radius: var(--radius-md); padding: 24px; box-shadow: var(--shadow-md); }
+        .admin-panel h2 { font-size: 18px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border-light); padding-bottom: 15px; }
+        
+        /* Interactive Tracking Bar Chart Frame */
+        .chart-container { height: 250px; display: flex; align-items: flex-end; gap: 15px; padding-bottom: 30px; position: relative; border-bottom: 2px solid var(--border-light); }
+        .chart-bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; position: relative; cursor: pointer; }
+        .chart-bar { width: 100%; background: linear-gradient(to top, var(--primary), var(--secondary)); border-radius: 6px 6px 0 0; transition: height 1s ease-out; height: 0; }
+        .chart-label { position: absolute; bottom: -25px; font-size: 12px; font-weight: 600; color: var(--text-muted); }
+        .chart-tooltip { position: absolute; top: -35px; background: var(--text-main); color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+        .chart-bar-group:hover .chart-tooltip { opacity: 1; }
 
-        /* Language Chooser Frame */
-        .lang-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .lang-btn {
-            padding: 15px; border: 2px solid var(--border-color); border-radius: var(--radius-md);
-            background: white; display: flex; align-items: center; gap: 10px;
-            font-weight: 600; color: var(--text-dark); transition: all 0.2s;
-        }
-        .lang-btn:hover, .lang-btn.active {
-            border-color: var(--primary); background: var(--primary-fade); color: var(--primary); transform: scale(1.02);
-        }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 14px; text-align: left; border-bottom: 1px solid var(--border-light); font-size: 14px; }
+        .data-table th { color: var(--text-muted); font-weight: 600; }
+        .status { padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; }
+        .status.reported { background: #fee2e2; color: var(--danger); }
+        .status.active { background: #d1fae5; color: var(--success); }
 
-        /* Toast Notification System */
-        #toast-container {
-            position: fixed; bottom: 30px; right: 30px; z-index: 200;
-            display: flex; flex-direction: column; gap: 15px;
-        }
-        .toast {
-            background: white; border-left: 5px solid var(--primary);
-            padding: 15px 25px; border-radius: 8px; box-shadow: var(--shadow-lg);
-            display: flex; align-items: center; gap: 15px; min-width: 300px;
-            animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        .toast.success { border-color: var(--success); }
-        .toast.error { border-color: var(--danger); }
-        .toast-icon { font-size: 20px; }
-        .toast.success .toast-icon { color: var(--success); }
-        .toast.error .toast-icon { color: var(--danger); }
+        /* ==========================================================================
+           9. CART SIDEBAR
+           ========================================================================== */
+        #cart-sidebar { position: fixed; top: 0; right: -100%; width: var(--cart-width); height: 100vh; background: var(--bg-surface); box-shadow: -10px 0 30px rgba(0,0,0,0.1); z-index: 100; transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
+        #cart-sidebar.open { right: 0; }
+        .cart-header { padding: 20px 24px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: 700; }
+        .cart-close { font-size: 24px; color: var(--text-muted); cursor: pointer; }
+        .cart-items { flex: 1; overflow-y: auto; padding: 24px; }
+        .cart-item { display: flex; gap: 16px; margin-bottom: 24px; }
+        .c-item-img { width: 80px; height: 80px; background: #f1f5f9; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 32px; }
+        .c-item-info { flex: 1; }
+        .c-item-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+        .c-item-price { color: var(--primary); font-weight: 700; margin-bottom: 8px; }
+        .c-qty { display: flex; align-items: center; gap: 12px; border: 1px solid var(--border-light); border-radius: 99px; width: fit-content; padding: 4px 12px; }
+        .cart-footer { padding: 24px; border-top: 1px solid var(--border-light); background: #f8fafc; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px; color: var(--text-muted); }
+        .summary-total { display: flex; justify-content: space-between; margin-top: 16px; padding-top: 16px; border-top: 2px dashed var(--border-light); font-size: 20px; font-weight: 800; color: var(--text-main); }
+        .btn-checkout { width: 100%; padding: 16px; background: var(--text-main); color: white; font-weight: 700; border-radius: var(--radius-md); margin-top: 20px; font-size: 16px; display: flex; justify-content: center; align-items: center; gap: 10px; }
 
-        /* Animations */
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes fadeOutRight { to { transform: translateX(100%); opacity: 0; } }
+        /* ==========================================================================
+           10. UTILITIES & ANIMATIONS
+           ========================================================================== */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 90; display: none; opacity: 0; transition: opacity 0.3s; }
+        .overlay.active { display: block; opacity: 1; }
+        
+        .toast-container { position: fixed; bottom: 30px; right: 30px; z-index: 999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: white; padding: 16px 24px; border-radius: var(--radius-md); box-shadow: var(--shadow-lg); border-left: 4px solid var(--primary); display: flex; align-items: center; gap: 12px; font-weight: 600; transform: translateX(120%); animation: slideIn 0.4s forwards; }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { to { transform: translateX(0); } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateX(120%); } }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* Role Controllers */
+        /* Role-based display utilities */
         body[data-role="visitor"] .req-user { display: none !important; }
         body[data-role="visitor"] .req-admin { display: none !important; }
-        body[data-role="user"] .req-admin { display: none !important; }
         body[data-role="user"] .req-visitor { display: none !important; }
+        body[data-role="user"] .req-admin { display: none !important; }
         body[data-role="admin"] .req-visitor { display: none !important; }
-        
-        /* Top Navigation specific overrides based on role */
-        body[data-role="visitor"] #cart-panel { display: none !important; }
-        body[data-role="user"] #cart-panel { display: flex !important; }
-        body[data-role="admin"] #cart-panel { display: none !important; }
-
     </style>
 </head>
 <body data-role="visitor">
 
-    <div id="app-container">
-        
-        <nav id="sidebar">
-            <div class="logo-container">
-                <div class="logo-icon">👜</div>
-                <span>Lalibela</span>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-item active" onclick="app.navigate('home')">
-                    <div class="nav-item-left"><span class="nav-icon">🏠</span> Home</div>
+    <div id="app">
+        <aside id="sidebar" class="req-user req-admin">
+            <div class="sidebar-profile">
+                <div class="profile-avatar">
+                    <span id="user-initial">U</span>
                 </div>
-                <div class="nav-item" onclick="app.navigate('home')">
-                    <div class="nav-item-left"><span class="nav-icon">🗂️</span> Categories</div>
-                </div>
-                <div class="nav-item" onclick="app.navigate('home')">
-                    <div class="nav-item-left"><span class="nav-icon">🔥</span> Deals</div>
-                    <span class="nav-badge">Hot</span>
-                </div>
-                <div class="nav-item" onclick="app.navigate('home')">
-                    <div class="nav-item-left"><span class="nav-icon">✨</span> New Arrivals</div>
-                </div>
-                <div class="nav-item req-admin" onclick="app.navigate('admin')">
-                    <div class="nav-item-left"><span class="nav-icon">🛡️</span> Admin Panel</div>
+                <div class="profile-info">
+                    <div class="profile-name" id="sidebar-username">Abebe Kebede</div>
+                    <div class="profile-edit">Edit Profile</div>
                 </div>
             </div>
 
-            <hr style="border-top: 1px solid var(--border-color); margin: 10px 0; border-bottom: none;">
+            <div class="sidebar-wallet">
+                <div class="wallet-label">
+                    <span>Wallet Balance</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/></svg>
+                </div>
+                <div class="wallet-balance">$150.00</div>
+            </div>
 
-            <div class="nav-section req-user req-admin">
-                <div class="nav-item" onclick="app.navigate('user')">
-                    <div class="nav-item-left"><span class="nav-icon">📋</span> My Hub</div>
+            <div class="sidebar-nav">
+                <div class="nav-group">
+                    <div class="nav-group-title">Shopping</div>
+                    <div class="nav-item active" onclick="Lalibela.navigate('home')">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                        Explore Market
+                    </div>
+                    <div class="nav-item">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+                        My Orders
+                    </div>
+                    <div class="nav-item">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        Wishlist
+                    </div>
                 </div>
-                <div class="nav-item">
-                    <div class="nav-item-left"><span class="nav-icon">❤️</span> Wishlist</div>
+
+                <div class="nav-group">
+                    <div class="nav-group-title">Account</div>
+                    <div class="nav-item" onclick="Lalibela.navigate('selling-hub')">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>
+                        Selling Hub
+                    </div>
+                    <div class="nav-item">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94L14.4 2.81c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41L9.25 5.35C8.66 5.59 8.12 5.92 7.63 6.29L5.24 5.33c-.22-.08-.47 0-.59.22L2.73 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .43-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.49-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                        Settings
+                    </div>
                 </div>
-                <div class="nav-item">
-                    <div class="nav-item-left"><span class="nav-icon">⚙️</span> Account Settings</div>
+
+                <div class="nav-group">
+                    <div class="nav-group-title">Support</div>
+                    <div class="nav-item" onclick="Lalibela.navigate('how-it-works')">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
+                        How it Works
+                    </div>
+                    <div class="nav-item">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 9h-2V9h2v2zm0 4h-2v-2h2v2z"/></svg>
+                        Help & Support
+                    </div>
+                    <div class="nav-item req-admin" style="color: var(--danger); font-weight: bold; background: #fee2e2; margin-top: 10px;" onclick="Lalibela.navigate('admin')">
+                        <svg class="nav-icon" style="fill: var(--danger);" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+                        HQ Admin Control
+                    </div>
                 </div>
             </div>
 
-            <div class="promo-banner">
-                <h4>Special Offer</h4>
-                <h2>Lalibela Sale<br>Up to 50% Off</h2>
-                <button onclick="app.showToast('Sale activated!', 'success')">Shop Now</button>
-            </div>
+            <button class="logout-btn" onclick="Lalibela.handleLogout()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Log Out
+            </button>
+        </aside>
 
-            <div class="sidebar-footer">
-                <button class="support-btn req-visitor" onclick="app.openModal('auth-modal')">
-                    <span class="nav-icon">🔑</span> Login / Sign Up
-                </button>
-                <button class="support-btn req-user req-admin" onclick="app.logout()">
-                    <span class="nav-icon">🚪</span> Logout
-                </button>
-                <button class="support-btn" onclick="app.openModal('lang-modal')">
-                    <span class="nav-icon">🌍</span> Language (EN)
-                </button>
-            </div>
-        </nav>
-
-        <main id="main-content">
+        <main id="main-wrapper">
             
-            <header class="top-header">
+            <header id="header">
                 <div class="header-left">
-                    <input type="text" class="search-bar" placeholder="Search Lalibela...">
+                    <div class="brand">
+                        <span style="font-size: 28px;">👜</span> Lalibela
+                    </div>
+                    <div class="search-box req-user req-admin">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted)"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" placeholder="Search products, brands and categories...">
+                    </div>
                 </div>
-                <div class="header-right">
-                    <div class="action-icon">
-                        🔔 <span class="action-badge">3</span>
-                    </div>
-                    <div class="user-profile req-visitor" onclick="app.openModal('auth-modal')">
-                        <span style="font-weight: 600; font-size: 14px;">Sign In</span>
-                    </div>
-                    <div class="user-profile req-user req-admin" onclick="app.navigate('user')">
-                        <div class="avatar"><img src="https://i.pravatar.cc/100?img=5" alt="User"></div>
-                        <span id="display-username" style="font-weight: 600; font-size: 14px;">User</span>
-                        <span>▼</span>
-                    </div>
+
+                <div class="header-right req-visitor">
+                    <button class="auth-cta" onclick="Lalibela.navigate('auth')">Sign Up / Login</button>
+                </div>
+
+                <div class="header-right req-user req-admin">
+                    <button class="icon-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                        <span class="badge">3</span>
+                    </button>
+                    <button class="icon-btn" onclick="Lalibela.toggleCart()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                        <span class="badge">4</span>
+                    </button>
                 </div>
             </header>
 
-            <section id="view-home" class="view-section active">
-                <div class="grid-header">
-                    <h2>Explore Lalibela Market</h2>
-                    <select style="padding: 8px; border-radius: 8px; border: 1px solid var(--border-color);">
-                        <option>Sort by: Recommended</option>
-                        <option>Price: Low to High</option>
-                        <option>Newest</option>
-                    </select>
-                </div>
-                <div class="product-grid" id="product-grid-container">
-                    </div>
-            </section>
-
-            <section id="view-user" class="view-section">
-                <div class="grid-header">
-                    <h2>User Dashboard</h2>
-                </div>
+            <div id="view-container">
                 
-                <div class="user-panel-grid">
-                    <div class="beautiful-card">
-                        <h2>📦 Sell a Product</h2>
-                        <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">List your items on the Lalibela market.</p>
-                        <form onsubmit="event.preventDefault(); app.showToast('Product submitted for review!', 'success')">
-                            <div class="form-group">
-                                <label>Product Name</label>
-                                <input type="text" placeholder="e.g., Traditional Dress">
+                <section id="view-auth" class="view">
+                    <div class="auth-layout">
+                        <div class="auth-banner">
+                            <h1>Welcome to Lalibela Market</h1>
+                            <p>Discover traditional treasures, modern fashion, and daily essentials. Join Ethiopia's premier e-commerce platform to buy, sell, and connect.</p>
+                        </div>
+                        <div class="auth-form-container">
+                            <div class="auth-header">
+                                <h2 id="auth-title">Sign In</h2>
+                                <p id="auth-subtitle">Welcome back! Please enter your details.</p>
                             </div>
-                            <div class="form-group">
-                                <label>Price (ETB)</label>
-                                <input type="number" placeholder="0.00">
+
+                            <div class="auth-tabs">
+                                <div class="auth-tab active" id="tab-login" onclick="Lalibela.switchAuthMode('login')">Login</div>
+                                <div class="auth-tab" id="tab-signup" onclick="Lalibela.switchAuthMode('signup')">Sign Up</div>
                             </div>
-                            <button type="submit" class="btn-action">List Product</button>
-                        </form>
-                    </div>
 
-                    <div class="beautiful-card">
-                        <h2>💳 Connect Account Number</h2>
-                        <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">Link your bank to receive funds from sales.</p>
-                        <form onsubmit="event.preventDefault(); app.showToast('Account connected securely!', 'success')">
-                            <div class="form-group">
-                                <label>Bank Name</label>
-                                <select style="width: 100%; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-                                    <option>Commercial Bank of Ethiopia</option>
-                                    <option>Dashen Bank</option>
-                                    <option>Awash Bank</option>
-                                    <option>Telebirr</option>
-                                </select>
+                            <form id="auth-form" onsubmit="event.preventDefault(); Lalibela.processAuth();">
+                                <div class="form-group" id="group-name" style="display: none;">
+                                    <label>Full Name</label>
+                                    <input type="text" id="input-name" placeholder="Abebe Kebede">
+                                </div>
+                                <div class="form-group">
+                                    <label>Email Address</label>
+                                    <input type="email" id="input-email" placeholder="user@example.com" required>
+                                    <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">*Use <b>admin@lalibela.com</b> to preview Admin HQ Control.</p>
+                                </div>
+                                <div class="form-group">
+                                    <label>Password</label>
+                                    <input type="password" id="input-password" placeholder="••••••••" required>
+                                </div>
+                                <button type="submit" class="btn-submit" id="btn-auth-submit">Log In to Account</button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="view-home" class="view active">
+                    <div class="section-header">
+                        <h2 class="section-title">Explore Lalibela</h2>
+                        <select style="padding: 10px 16px; border-radius: var(--radius-md); border: 1px solid var(--border-light); font-weight: 600;">
+                            <option>Recommended</option>
+                            <option>Price: Low to High</option>
+                            <option>Newest Arrivals</option>
+                        </select>
+                    </div>
+                    <div class="product-grid" id="market-grid">
+                        </div>
+                </section>
+
+                <section id="view-how-it-works" class="view">
+                    <div class="hiw-header">
+                        <h1>How Lalibela Works</h1>
+                        <p style="font-size: 18px; color: var(--text-muted); max-width: 600px; margin: 0 auto;">Your complete guide to buying and selling on Ethiopia's fastest-growing marketplace.</p>
+                    </div>
+                    
+                    <div class="hiw-grid">
+                        <div class="hiw-card">
+                            <h2>🛍️ For Buyers</h2>
+                            <div class="step-list">
+                                <div class="step-item">
+                                    <div class="step-num">1</div>
+                                    <div class="step-content">
+                                        <h4>Explore the Market</h4>
+                                        <p>Browse thousands of products across categories like Fashion, Electronics, and Traditional Ethiopian Items.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item">
+                                    <div class="step-num">2</div>
+                                    <div class="step-content">
+                                        <h4>Add to Cart & Checkout</h4>
+                                        <p>Select your items, adjust quantities, and proceed to our secure checkout system.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item">
+                                    <div class="step-num">3</div>
+                                    <div class="step-content">
+                                        <h4>Fast Delivery</h4>
+                                        <p>Track your order in real-time as it makes its way to your doorstep safely and securely.</p>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label>Account Number</label>
-                                <input type="text" placeholder="1000XXXXXXXXX">
+                        </div>
+
+                        <div class="hiw-card">
+                            <h2>📦 For Sellers</h2>
+                            <div class="step-list">
+                                <div class="step-item">
+                                    <div class="step-num">1</div>
+                                    <div class="step-content">
+                                        <h4>Connect Your Bank</h4>
+                                        <p>Go to your Selling Hub and connect your local bank account (CBE, Dashen, Telebirr) to receive funds.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item">
+                                    <div class="step-num">2</div>
+                                    <div class="step-content">
+                                        <h4>List Your Products</h4>
+                                        <p>Upload photos, set your price, and write a compelling description to attract buyers.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item">
+                                    <div class="step-num">3</div>
+                                    <div class="step-content">
+                                        <h4>Earn & Grow</h4>
+                                        <p>Process orders, ship items, and watch your Wallet Balance grow instantly upon delivery confirmation.</p>
+                                    </div>
+                                </div>
                             </div>
-                            <button type="submit" class="btn-action">Save Account</button>
-                        </form>
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            <section id="view-admin" class="view-section">
-                <div class="grid-header">
-                    <h2>System Administration HQ</h2>
-                </div>
-
-                <div class="admin-dashboard">
-                    <div class="stat-card">
-                        <div class="stat-icon">👥</div>
-                        <div class="stat-info"><h4>Total Users</h4><h2>12,450</h2></div>
+                <section id="view-selling-hub" class="view">
+                    <div class="section-header">
+                        <h2 class="section-title">Seller Hub & Account Linking</h2>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">🛒</div>
-                        <div class="stat-info"><h4>Market Sales</h4><h2>$84,000</h2></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">⚠️</div>
-                        <div class="stat-info"><h4>Reports</h4><h2 style="color: var(--danger)">14</h2></div>
-                    </div>
-                </div>
-
-                <div class="admin-tables">
-                    <div class="tracking-frame">
-                        <h2 style="font-size: 18px; margin-bottom: 5px;">📈 User Tracking System Report</h2>
-                        <p style="color: var(--text-muted); font-size: 13px;">Live monitoring of user interactions (Likes, Shares, Follows).</p>
+                    <div class="admin-layout">
+                        <div class="admin-panel">
+                            <h2>➕ List a New Item</h2>
+                            <form onsubmit="event.preventDefault(); Lalibela.showToast('Product submitted to marketplace!', 'success');">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                    <div class="form-group">
+                                        <label>Product Title</label>
+                                        <input type="text" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Price (ETB)</label>
+                                        <input type="number" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea rows="4" style="width: 100%; padding: 12px; border: 1px solid var(--border-light); border-radius: var(--radius-md); resize: none;"></textarea>
+                                </div>
+                                <button type="submit" class="btn-submit" style="width: auto; padding: 12px 30px;">Publish Listing</button>
+                            </form>
+                        </div>
                         
-                        <div class="chart-placeholder">
-                            <div class="bar" style="height: 60%;" data-val="Likes (1.2k)"></div>
-                            <div class="bar" style="height: 40%; background: var(--secondary);" data-val="Shares (800)"></div>
-                            <div class="bar" style="height: 85%;" data-val="Follows (1.8k)"></div>
-                            <div class="bar" style="height: 30%; background: var(--secondary);" data-val="Reports (14)"></div>
-                            <div class="bar" style="height: 95%;" data-val="Logins (2.1k)"></div>
+                        <div class="admin-panel">
+                            <h2>💳 Connect Bank</h2>
+                            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Link your account to withdraw your $150.00 balance.</p>
+                            <form onsubmit="event.preventDefault(); Lalibela.showToast('Bank connected successfully!', 'success');">
+                                <div class="form-group">
+                                    <label>Bank Selection</label>
+                                    <select style="width: 100%; padding: 14px; border: 1px solid var(--border-light); border-radius: var(--radius-md);">
+                                        <option>Commercial Bank of Ethiopia (CBE)</option>
+                                        <option>Awash Bank</option>
+                                        <option>Telebirr</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Account Number</label>
+                                    <input type="text" required>
+                                </div>
+                                <button type="submit" class="btn-submit" style="width: 100%;">Link Account</button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="view-admin" class="view">
+                    <div class="section-header">
+                        <h2 class="section-title">Admin HQ Dashboard</h2>
+                    </div>
+
+                    <div class="admin-stats">
+                        <div class="stat-card"><h3>Total Users</h3><div class="value">14,205</div></div>
+                        <div class="stat-card"><h3>Market Volume</h3><div class="value" style="color: var(--success)">$245,000</div></div>
+                        <div class="stat-card"><h3>Active Listings</h3><div class="value">3,492</div></div>
+                        <div class="stat-card" style="border-color: var(--danger)"><h3>Reported Accounts</h3><div class="value" style="color: var(--danger)">12</div></div>
+                    </div>
+
+                    <div class="admin-layout">
+                        <div class="admin-panel">
+                            <h2>📈 System Interaction Tracking</h2>
+                            <div class="chart-container" id="admin-chart">
+                                </div>
+                        </div>
+
+                        <div class="admin-panel">
+                            <h2>⚙️ Edit HQ Information</h2>
+                            <form onsubmit="event.preventDefault(); Lalibela.showToast('HQ Information Updated', 'success');">
+                                <div class="form-group">
+                                    <label>Support Email</label>
+                                    <input type="email" value="support@lalibela.com">
+                                </div>
+                                <div class="form-group">
+                                    <label>Creator Email</label>
+                                    <input type="email" value="admin@lalibela.com">
+                                </div>
+                                <div class="form-group">
+                                    <label>HQ Phone Number</label>
+                                    <input type="text" value="+251 911 000 000">
+                                </div>
+                                <button type="submit" class="btn-submit">Save Changes</button>
+                            </form>
                         </div>
                     </div>
 
-                    <div class="beautiful-card">
-                        <h2 style="font-size: 16px;">⚙️ Edit HQ Information</h2>
-                        <form onsubmit="event.preventDefault(); app.showToast('System information updated!', 'success')">
-                            <div class="form-group">
-                                <label>Support Email</label>
-                                <input type="email" value="support@lalibela.com">
-                            </div>
-                            <div class="form-group">
-                                <label>Creator Email</label>
-                                <input type="email" value="admin@lalibela.com">
-                            </div>
-                            <div class="form-group">
-                                <label>HQ Phone No.</label>
-                                <input type="text" value="+251 911 000 000">
-                            </div>
-                            <button type="submit" class="btn-action" style="padding: 8px;">Update Info</button>
-                        </form>
+                    <div class="admin-panel" style="margin-top: 30px;">
+                        <h2>🛡️ Manage Users & Reports</h2>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Account Name</th>
+                                    <th>Engagement Score</th>
+                                    <th>Account Status</th>
+                                    <th>Admin Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#LAL-9081</td>
+                                    <td>Abebe Kebede</td>
+                                    <td>98% (High)</td>
+                                    <td><span class="status active">Active</span></td>
+                                    <td><button style="color: var(--primary); font-weight: bold;">View Details</button></td>
+                                </tr>
+                                <tr>
+                                    <td>#LAL-4432</td>
+                                    <td>FakeSeller_99</td>
+                                    <td>12% (Low)</td>
+                                    <td><span class="status reported">Reported (Spam)</span></td>
+                                    <td><button style="color: var(--danger); font-weight: bold;" onclick="Lalibela.showToast('User Banned', 'success')">Ban User</button></td>
+                                </tr>
+                                <tr>
+                                    <td>#LAL-1123</td>
+                                    <td>Sara Boutique</td>
+                                    <td>85% (High)</td>
+                                    <td><span class="status active">Active</span></td>
+                                    <td><button style="color: var(--primary); font-weight: bold;">View Details</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
+                </section>
 
-                <div class="tracking-frame" style="margin-top: 20px;">
-                    <h2 style="font-size: 18px; margin-bottom: 15px;">🛡️ Manage Users & Reported Accounts</h2>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>User ID</th>
-                                <th>Name</th>
-                                <th>Activity Score</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>#USR-001</td>
-                                <td>Abebe Kebede</td>
-                                <td>95 (High Follows)</td>
-                                <td><span class="status-badge status-active">Active</span></td>
-                                <td><button style="color:var(--primary); font-weight:bold;">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>#USR-089</td>
-                                <td>FakeSeller99</td>
-                                <td>12 (Low Engagement)</td>
-                                <td><span class="status-badge status-reported">Reported</span></td>
-                                <td><button style="color:var(--danger); font-weight:bold;">Ban User</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
+            </div>
         </main>
 
-        <aside id="cart-panel">
+        <div class="overlay" id="overlay" onclick="Lalibela.toggleCart()"></div>
+        <aside id="cart-sidebar">
             <div class="cart-header">
-                <span>My Cart (4)</span>
-                <button style="font-size: 20px; color: var(--text-muted);">×</button>
+                <span>Your Cart (4)</span>
+                <span class="cart-close" onclick="Lalibela.toggleCart()">×</span>
             </div>
             
             <div class="cart-items">
                 <div class="cart-item">
-                    <div class="item-img">👟</div>
-                    <div class="item-details">
-                        <div class="item-title">Air Max 270 React</div>
-                        <div class="item-desc">Women's Shoes - Size 7 US</div>
-                        <div class="item-price">$129.99</div>
-                        <div class="item-actions">
-                            <div class="qty-control">
-                                <button class="qty-btn">-</button>
-                                <span>1</span>
-                                <button class="qty-btn">+</button>
-                            </div>
-                            <button style="color: var(--text-muted);">🗑️</button>
+                    <div class="c-item-img">👟</div>
+                    <div class="c-item-info">
+                        <div class="c-item-title">Air Max 270 React</div>
+                        <div class="c-item-price">$129.99</div>
+                        <div class="c-qty">
+                            <button>-</button><span>1</span><button>+</button>
                         </div>
                     </div>
+                    <button style="color: var(--danger);">🗑️</button>
                 </div>
-
                 <div class="cart-item">
-                    <div class="item-img">🧴</div>
-                    <div class="item-details">
-                        <div class="item-title">Chanel Chance</div>
-                        <div class="item-desc">Eau Tendre EDP 100ml</div>
-                        <div class="item-price">$89.99</div>
-                        <div class="item-actions">
-                            <div class="qty-control">
-                                <button class="qty-btn">-</button>
-                                <span>1</span>
-                                <button class="qty-btn">+</button>
-                            </div>
-                            <button style="color: var(--text-muted);">🗑️</button>
+                    <div class="c-item-img">🧴</div>
+                    <div class="c-item-info">
+                        <div class="c-item-title">Chanel Chance Perfume</div>
+                        <div class="c-item-price">$89.99</div>
+                        <div class="c-qty">
+                            <button>-</button><span>1</span><button>+</button>
                         </div>
                     </div>
-                </div>
-
-                 <div class="cart-item">
-                    <div class="item-img">👜</div>
-                    <div class="item-details">
-                        <div class="item-title">Minimalist Shoulder Bag</div>
-                        <div class="item-desc">Olive Green</div>
-                        <div class="item-price">$39.99</div>
-                        <div class="item-actions">
-                            <div class="qty-control">
-                                <button class="qty-btn">-</button>
-                                <span>1</span>
-                                <button class="qty-btn">+</button>
-                            </div>
-                            <button style="color: var(--text-muted);">🗑️</button>
-                        </div>
-                    </div>
+                    <button style="color: var(--danger);">🗑️</button>
                 </div>
             </div>
 
-            <div class="cart-summary">
-                <div class="promo-input">
-                    <input type="text" placeholder="Promo Code">
-                    <button>Apply</button>
-                </div>
-                <div class="summary-row">
-                    <span>Subtotal</span><span>$259.97</span>
-                </div>
-                <div class="summary-row" style="color: var(--secondary);">
-                    <span>Discount</span><span>-$20.00</span>
-                </div>
-                <div class="summary-row">
-                    <span>Shipping</span><span style="color: var(--success); font-weight: bold;">Free</span>
-                </div>
-                <div class="summary-total">
-                    <span>Total</span><span>$239.97</span>
-                </div>
-                <button class="checkout-btn" onclick="app.showToast('Proceeding to secure checkout...', 'success')">
-                    🔒 Checkout (3) →
+            <div class="cart-footer">
+                <div class="summary-row"><span>Subtotal</span><span>$219.98</span></div>
+                <div class="summary-row" style="color: var(--secondary);"><span>Discount Code</span><span>-$20.00</span></div>
+                <div class="summary-row"><span>Shipping</span><span style="color: var(--success); font-weight: bold;">Free</span></div>
+                <div class="summary-total"><span>Total</span><span>$199.98</span></div>
+                <button class="btn-checkout" onclick="Lalibela.showToast('Processing secure checkout...', 'success')">
+                    🔒 Secure Checkout
                 </button>
             </div>
         </aside>
 
+        <div class="toast-container" id="toast-container"></div>
     </div>
-
-    <div class="modal-overlay" id="auth-modal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="app.closeModal('auth-modal')">×</button>
-            <div class="modal-header">
-                <h2 id="auth-title">Welcome to Lalibela</h2>
-                <p style="color: var(--text-muted);">Enter your details to continue.</p>
-            </div>
-            
-            <form id="auth-form" onsubmit="event.preventDefault(); app.processAuth();">
-                <div class="form-group" id="name-group" style="display: none;">
-                    <label>Full Name</label>
-                    <input type="text" id="auth-name" placeholder="Abebe Kebede">
-                </div>
-                <div class="form-group">
-                    <label>Email or Phone</label>
-                    <input type="text" id="auth-email" placeholder="user@example.com" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" placeholder="••••••••" required>
-                </div>
-                <p style="font-size: 11px; color: #ccc; margin-bottom: 10px;">(Prototype tip: Type 'admin' in email for Admin View, anything else for User View)</p>
-
-                <button type="submit" class="btn-action" id="auth-submit-btn">Login</button>
-            </form>
-
-            <div class="auth-switch">
-                <span id="auth-switch-text">New to Lalibela?</span>
-                <a onclick="app.toggleAuthMode()" id="auth-switch-link">Sign Up</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="lang-modal">
-        <div class="modal-content" style="width: 500px;">
-            <button class="close-modal" onclick="app.closeModal('lang-modal')">×</button>
-            <div class="modal-header">
-                <h2>🌐 Choose Language</h2>
-                <p style="color: var(--text-muted);">Select your preferred language for the system.</p>
-            </div>
-            
-            <div class="lang-grid">
-                <button class="lang-btn active" onclick="app.selectLang('English')">🇬🇧 English</button>
-                <button class="lang-btn" onclick="app.selectLang('Amharic')">🇪🇹 አማርኛ (Amharic)</button>
-                <button class="lang-btn" onclick="app.selectLang('Oromo')">🇪🇹 Afaan Oromoo</button>
-                <button class="lang-btn" onclick="app.selectLang('Tigrinya')">🇪🇹 ትግርኛ (Tigrinya)</button>
-                <button class="lang-btn" onclick="app.selectLang('French')">🇫🇷 Français</button>
-                <button class="lang-btn" onclick="app.selectLang('Arabic')">🇸🇦 العربية</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="toast-container"></div>
 
     <script>
-        class LalibelaApp {
+        class LalibelaSystem {
             constructor() {
-                this.role = 'visitor'; // 'visitor', 'user', 'admin'
-                this.authMode = 'login'; // 'login', 'signup'
+                this.role = 'visitor'; // visitor | user | admin
+                this.authMode = 'login'; // login | signup
+                
+                // Mock Database
+                this.products = [
+                    { name: 'Habesha Kemis (Traditional)', cat: 'Fashion', price: '$150.00', icon: '👗' },
+                    { name: 'Leather Satchel Bag', cat: 'Accessories', price: '$85.00', icon: '🎒' },
+                    { name: 'Ethiopian Coffee Beans', cat: 'Grocery', price: '$25.00', icon: '☕' },
+                    { name: 'Modern Sunglasses', cat: 'Accessories', price: '$120.00', icon: '🕶️' },
+                    { name: 'Smart Watch Pro', cat: 'Electronics', price: '$199.99', icon: '⌚' },
+                    { name: 'Organic Honey (1kg)', cat: 'Grocery', price: '$15.00', icon: '🍯' },
+                    { name: 'Silver Cross Pendant', cat: 'Jewelry', price: '$60.00', icon: '✝️' },
+                    { name: 'Handwoven Scarf', cat: 'Fashion', price: '$35.00', icon: '🧣' }
+                ];
+
+                this.trackingData = [
+                    { label: 'Likes', val: 80, color: 'var(--primary)' },
+                    { label: 'Shares', val: 45, color: 'var(--secondary)' },
+                    { label: 'Follows', val: 65, color: 'var(--primary)' },
+                    { label: 'Reports', val: 15, color: 'var(--danger)' },
+                    { label: 'Sales', val: 95, color: 'var(--success)' }
+                ];
+
                 this.init();
             }
 
             init() {
                 this.renderProducts();
-                this.updateUI();
-                console.log("Lalibela System Initialized.");
+                this.renderAdminChart();
+                this.applyRole();
+                
+                // Show Home by default
+                if(this.role === 'visitor') {
+                    this.navigate('home');
+                    // Hide sidebar for visitor for cleaner UI initially, or show empty state. 
+                    // Let's keep it hidden via CSS req-user rule.
+                }
             }
 
-            // --- Navigation & View Logic ---
+            // --- Routing & Views ---
             navigate(viewId) {
                 // Hide all views
-                document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
                 
-                // Show requested view
-                const viewEl = document.getElementById(`view-${viewId}`);
-                if(viewEl) viewEl.classList.add('active');
-
-                // Highlight nav (basic implementation)
-                if(event && event.currentTarget) {
+                // Highlight active nav item
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                if(event && event.currentTarget.classList.contains('nav-item')) {
                     event.currentTarget.classList.add('active');
                 }
+
+                // Show target view
+                const target = document.getElementById(`view-${viewId}`);
+                if(target) target.classList.add('active');
             }
 
-            // --- Role & Auth Logic ---
-            setRole(newRole, userName = 'User') {
-                this.role = newRole;
-                document.body.setAttribute('data-role', this.role);
+            // --- Authentication Logic ---
+            switchAuthMode(mode) {
+                this.authMode = mode;
+                document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+                document.getElementById('tab-signup').classList.toggle('active', mode === 'signup');
                 
-                if(this.role !== 'visitor') {
-                    document.getElementById('display-username').innerText = userName;
-                }
-
-                // Route to correct dashboard based on role
-                if (this.role === 'admin') {
-                    this.navigate('admin');
-                    this.showToast('Welcome to Admin Control', 'success');
-                } else if (this.role === 'user') {
-                    this.navigate('home');
-                    this.showToast('Successfully logged in!', 'success');
-                } else {
-                    this.navigate('home');
-                }
+                document.getElementById('group-name').style.display = mode === 'signup' ? 'block' : 'none';
+                document.getElementById('auth-title').innerText = mode === 'login' ? 'Sign In' : 'Create Account';
+                document.getElementById('auth-subtitle').innerText = mode === 'login' ? 'Welcome back! Please enter your details.' : 'Join Lalibela today.';
+                document.getElementById('btn-auth-submit').innerText = mode === 'login' ? 'Log In to Account' : 'Sign Up Now';
             }
 
             processAuth() {
-                const emailInput = document.getElementById('auth-email').value.toLowerCase();
-                const nameInput = document.getElementById('auth-name').value || 'User';
+                const email = document.getElementById('input-email').value.toLowerCase();
+                const name = document.getElementById('input-name').value || 'User';
                 
-                // Prototype logic: If email contains 'admin', make admin. Else, make user.
-                if(emailInput.includes('admin')) {
-                    this.setRole('admin', 'Admin Manager');
+                // Magic logic based on requested requirements
+                if (email.includes('admin')) {
+                    this.role = 'admin';
+                    this.showToast('System Admin Access Granted', 'success');
+                    this.navigate('admin');
                 } else {
-                    this.setRole('user', this.authMode === 'signup' ? nameInput : 'Shopper');
+                    this.role = 'user';
+                    document.getElementById('sidebar-username').innerText = this.authMode === 'signup' ? name : 'Abebe Kebede';
+                    document.getElementById('user-initial').innerText = (this.authMode === 'signup' ? name : 'A')[0].toUpperCase();
+                    this.showToast('Successfully logged in!', 'success');
+                    this.navigate('home');
                 }
                 
-                this.closeModal('auth-modal');
+                this.applyRole();
             }
 
-            logout() {
-                this.setRole('visitor');
-                this.showToast('Logged out successfully.', 'success');
+            handleLogout() {
+                this.role = 'visitor';
+                this.applyRole();
+                this.navigate('auth');
+                this.showToast('Logged out successfully', 'success');
             }
 
-            toggleAuthMode() {
-                this.authMode = this.authMode === 'login' ? 'signup' : 'login';
-                
-                const title = document.getElementById('auth-title');
-                const nameGroup = document.getElementById('name-group');
-                const submitBtn = document.getElementById('auth-submit-btn');
-                const switchText = document.getElementById('auth-switch-text');
-                const switchLink = document.getElementById('auth-switch-link');
+            applyRole() {
+                document.body.setAttribute('data-role', this.role);
+            }
 
-                if (this.authMode === 'signup') {
-                    title.innerText = 'Create Lalibela Account';
-                    nameGroup.style.display = 'block';
-                    submitBtn.innerText = 'Sign Up';
-                    switchText.innerText = 'Already have an account?';
-                    switchLink.innerText = 'Login';
-                } else {
-                    title.innerText = 'Welcome Back';
-                    nameGroup.style.display = 'none';
-                    submitBtn.innerText = 'Login';
-                    switchText.innerText = 'New to Lalibela?';
-                    switchLink.innerText = 'Sign Up';
+            // --- UI Interactions ---
+            toggleCart() {
+                if(this.role === 'visitor') {
+                    this.showToast('Please login to view your cart.', 'error');
+                    this.navigate('auth');
+                    return;
                 }
-            }
-
-            // --- Modal Logic ---
-            openModal(modalId) {
-                document.getElementById(modalId).style.display = 'flex';
-            }
-
-            closeModal(modalId) {
-                document.getElementById(modalId).style.display = 'none';
-            }
-
-            selectLang(lang) {
-                document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-                event.currentTarget.classList.add('active');
-                
-                setTimeout(() => {
-                    this.closeModal('lang-modal');
-                    this.showToast(`Language changed to ${lang}`, 'success');
-                }, 400);
-            }
-
-            // --- Popups / Beautiful Frames (Toast System) ---
-            showToast(message, type = 'success') {
-                const container = document.getElementById('toast-container');
-                const toast = document.createElement('div');
-                toast.className = `toast ${type}`;
-                
-                const icon = type === 'success' ? '✅' : '⚠️';
-                
-                toast.innerHTML = `
-                    <div class="toast-icon">${icon}</div>
-                    <div style="font-weight: 500;">${message}</div>
-                `;
-                
-                container.appendChild(toast);
-
-                // Remove after 3.5 seconds
-                setTimeout(() => {
-                    toast.style.animation = 'fadeOutRight 0.4s forwards';
-                    setTimeout(() => toast.remove(), 400);
-                }, 3500);
-            }
-
-            // --- Dynamic Data Rendering ---
-            renderProducts() {
-                const products = [
-                    { name: 'Habesha Kemis (Traditional)', price: '$150.00', icon: '👗' },
-                    { name: 'Leather Satchel Bag', price: '$85.00', icon: '🎒' },
-                    { name: 'Ethiopian Coffee Beans (1kg)', price: '$25.00', icon: '☕' },
-                    { name: 'Modern Sunglasses', price: '$120.00', icon: '🕶️' },
-                    { name: 'Handwoven Scarf', price: '$35.00', icon: '🧣' },
-                    { name: 'Smart Watch Pro', price: '$199.99', icon: '⌚' },
-                    { name: 'Organic Honey', price: '$15.00', icon: '🍯' },
-                    { name: 'Silver Cross Pendant', price: '$60.00', icon: '✝️' }
-                ];
-
-                const container = document.getElementById('product-grid-container');
-                container.innerHTML = '';
-
-                products.forEach(prod => {
-                    const html = `
-                        <div class="product-card">
-                            <div class="product-image">${prod.icon}</div>
-                            <div class="product-info">
-                                <h3>${prod.name}</h3>
-                                <p>Lalibela Verified Seller</p>
-                                <div class="product-price-row">
-                                    <span class="price">${prod.price}</span>
-                                    <button class="add-to-cart-btn" onclick="app.handleAddToCart()">+</button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    container.innerHTML += html;
-                });
+                const cart = document.getElementById('cart-sidebar');
+                const overlay = document.getElementById('overlay');
+                cart.classList.toggle('open');
+                overlay.classList.toggle('active');
             }
 
             handleAddToCart() {
                 if(this.role === 'visitor') {
-                    this.showToast('Please Login or Sign Up to buy items.', 'error');
-                    this.openModal('auth-modal');
+                    this.showToast('Sign up or Login to buy items!', 'error');
+                    this.navigate('auth');
                 } else {
-                    this.showToast('Item added to cart!', 'success');
+                    this.showToast('Item added to your cart!', 'success');
                 }
             }
 
-            updateUI() {
-                // Initial cleanup if needed
+            showToast(message, type = 'success') {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.innerHTML = `
+                    <span style="font-size: 20px;">${type === 'success' ? '✅' : '⚠️'}</span>
+                    <span>${message}</span>
+                `;
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.animation = 'fadeOut 0.4s forwards';
+                    setTimeout(() => toast.remove(), 400);
+                }, 3000);
+            }
+
+            // --- Dynamic Rendering ---
+            renderProducts() {
+                const grid = document.getElementById('market-grid');
+                grid.innerHTML = this.products.map(p => `
+                    <div class="product-card">
+                        <div class="product-img">${p.icon}</div>
+                        <div class="product-info">
+                            <div class="product-category">${p.cat}</div>
+                            <div class="product-title">${p.name}</div>
+                            <div class="product-bottom">
+                                <div class="product-price">${p.price}</div>
+                                <button class="btn-add-cart" onclick="Lalibela.handleAddToCart()">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            renderAdminChart() {
+                const container = document.getElementById('admin-chart');
+                container.innerHTML = this.trackingData.map(d => `
+                    <div class="chart-bar-group">
+                        <div class="chart-tooltip">${d.val}K ${d.label}</div>
+                        <div class="chart-bar" style="height: 0px; background: ${d.color}"></div>
+                        <div class="chart-label">${d.label}</div>
+                    </div>
+                `).join('');
+
+                // Animate bars after a short delay
+                setTimeout(() => {
+                    const bars = container.querySelectorAll('.chart-bar');
+                    bars.forEach((bar, i) => {
+                        bar.style.height = `${this.trackingData[i].val}%`;
+                    });
+                }, 500);
             }
         }
 
-        // Initialize the app
-        const app = new LalibelaApp();
+        // Boot up the system
+        const Lalibela = new LalibelaSystem();
     </script>
 </body>
 </html>

@@ -1,242 +1,1191 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lalibela Marketplace | Multi-Vendor System</title>
+    <title>Lalibela | Comprehensive Multi-Vendor E-Commerce</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        .view { display: none; }
-        .view.active { display: block; }
+        /* Core System Styles */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .view-section { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        
+        /* Toast Notification */
+        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 4px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 17px; }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
+        @keyframes fadeout { from { bottom: 30px; opacity: 1; } to { bottom: 0; opacity: 0; } }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
 
-    <!-- Navigation Hub -->
-    <nav class="bg-white shadow-sm p-4 flex justify-between items-center sticky top-0 z-50">
-        <h1 class="font-black text-xl tracking-tighter text-orange-600">LALIBELA<span class="text-black">MARKET</span></h1>
-        <div class="flex gap-4 font-bold text-sm items-center">
-            <button onclick="showView('home')" class="hover:text-orange-600">Home</button>
-            <button onclick="showView('shop')" class="hover:text-orange-600">Shop</button>
-            <button onclick="showView('dashboard')" class="hover:text-orange-600">User Dashboard</button>
-            <button onclick="showView('seller')" id="navSellerBtn" class="hidden text-green-600 hover:text-green-800">Seller Panel</button>
-            <button onclick="showView('admin')" class="text-red-600 hover:text-red-800">Admin</button>
+    <!-- ========================================== -->
+    <!-- GLOBAL NAVIGATION HUB                        -->
+    <!-- ========================================== -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Logo & Public Links -->
+                <div class="flex items-center">
+                    <h1 class="font-black text-2xl tracking-tighter text-orange-600 cursor-pointer" onclick="navigate('home')">
+                        LALIBELA<span class="text-black">MARKET</span>
+                    </h1>
+                    <div class="hidden md:flex ml-10 space-x-8">
+                        <button onclick="navigate('home')" class="nav-btn text-gray-600 hover:text-orange-600 font-medium">Home</button>
+                        <button onclick="navigate('shop')" class="nav-btn text-gray-600 hover:text-orange-600 font-medium">Shop</button>
+                        <button onclick="navigate('about')" class="nav-btn text-gray-600 hover:text-orange-600 font-medium">About</button>
+                    </div>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="flex-1 flex items-center justify-center px-6">
+                    <div class="w-full max-w-lg relative">
+                        <input type="text" id="globalSearch" placeholder="Search products, categories..." class="w-full pl-10 pr-4 py-2 border rounded-full focus:outline-none focus:border-orange-500 bg-gray-50" onkeyup="handleSearch(event)">
+                        <i data-lucide="search" class="absolute left-3 top-2.5 text-gray-400 w-5 h-5"></i>
+                    </div>
+                </div>
+
+                <!-- User & Cart Actions (Dynamic based on Auth) -->
+                <div class="flex items-center space-x-6" id="authNavArea">
+                    <!-- Injected by JS based on login state -->
+                </div>
+            </div>
         </div>
     </nav>
 
-    <!-- VIEWS CONTAINER -->
-    <div id="content" class="max-w-6xl mx-auto p-6">
+    <!-- ========================================== -->
+    <!-- MAIN CONTENT CONTAINER                       -->
+    <!-- ========================================== -->
+    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" id="mainContent">
+
+        <!-- ========================================== -->
+        <!-- 1. PUBLIC (VISITOR) PAGES                  -->
+        <!-- ========================================== -->
         
-        <!-- 1. HOME VIEW (PUBLIC) -->
-        <section id="home" class="view active">
-            <div class="bg-orange-100 p-10 rounded-xl text-center mt-6">
-                <h2 class="text-4xl font-black mb-4">Welcome to Lalibela Market</h2>
-                <p class="text-lg mb-6">Buy the finest outdoor gear, or become a seller and start earning today.</p>
-                <button onclick="showView('shop')" class="bg-black text-white px-6 py-3 rounded font-bold hover:bg-gray-800">Start Shopping</button>
-            </div>
-        </section>
-
-        <!-- 2. SHOP VIEW (PUBLIC) -->
-        <section id="shop" class="view">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">Marketplace</h2>
-                <input type="text" placeholder="Search products..." class="border p-2 rounded w-64">
-            </div>
-            <div id="productGrid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                <!-- Products injected by JS -->
-            </div>
-        </section>
-
-        <!-- 3. USER DASHBOARD (CUSTOMER AREA) -->
-        <section id="dashboard" class="view">
-            <h2 class="text-2xl font-bold mb-4">My Account</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="col-span-2 space-y-4">
-                    <div class="bg-white p-6 rounded-lg shadow-sm border">
-                        <h3 class="font-bold text-lg border-b pb-2 mb-4">Recent Orders</h3>
-                        <p class="text-gray-500">You haven't placed any orders yet.</p>
-                    </div>
-                </div>
-
-                <!-- BECOME A SELLER FEATURE -->
-                <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg shadow-sm border border-green-200">
-                    <h3 class="font-bold text-lg mb-2">Want to sell your gear?</h3>
-                    <p class="text-sm mb-4">Join our marketplace. We take a small 2% commission, you keep 98%.</p>
-                    <button id="becomeSellerBtn" onclick="upgradeToSeller()" class="bg-green-600 text-white w-full py-2 rounded font-bold hover:bg-green-700 shadow">
-                        Become a Seller
-                    </button>
-                    <p id="sellerStatus" class="hidden text-green-700 font-bold mt-2">✓ You are now an approved seller!</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- 4. SELLER PANEL (VENDORS ONLY) -->
-        <section id="seller" class="view">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-green-700">Seller Dashboard</h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white p-4 rounded shadow-sm border border-gray-200">
-                    <p class="text-sm text-gray-500">Gross Sales</p>
-                    <h4 class="text-xl font-black">13,000 ETB</h4>
-                </div>
-                <div class="bg-white p-4 rounded shadow-sm border border-gray-200">
-                    <p class="text-sm text-gray-500">Platform Fee (2%)</p>
-                    <h4 class="text-xl font-black text-red-500">-260 ETB</h4>
-                </div>
-                <div class="bg-white p-4 rounded shadow-sm border border-green-200">
-                    <p class="text-sm text-gray-500">Your Net Earnings</p>
-                    <h4 class="text-xl font-black text-green-600">12,740 ETB</h4>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-lg shadow-sm border mb-6">
-                <h3 class="font-bold text-lg border-b pb-2 mb-4">Post a New Product</h3>
-                <form id="addProductForm" onsubmit="postProduct(event)" class="grid grid-cols-2 gap-4">
-                    <input type="text" id="pName" placeholder="Product Name" required class="border p-2 rounded">
-                    <input type="number" id="pPrice" placeholder="Price (ETB)" required class="border p-2 rounded">
-                    <input type="text" id="pCategory" placeholder="Category" class="border p-2 rounded">
-                    <input type="text" id="pImage" placeholder="Image URL (optional)" class="border p-2 rounded">
-                    <textarea id="pDesc" placeholder="Description" class="border p-2 rounded col-span-2" rows="2"></textarea>
-                    <button type="submit" class="bg-black text-white px-4 py-2 rounded font-bold col-span-2 hover:bg-gray-800">
-                        Publish Product
-                    </button>
-                </form>
-            </div>
-        </section>
-
-        <!-- 5. ADMIN PANEL (OWNER AREA) -->
-        <section id="admin" class="view">
-            <h2 class="text-3xl font-black text-red-600 mb-6">Admin Control Center</h2>
-            
-            <!-- Global Stats -->
-            <div class="grid grid-cols-4 gap-4 mb-6">
-                <div class="bg-white p-4 border rounded shadow-sm">
-                    <p class="text-sm text-gray-500">Total Market Sales</p>
-                    <p class="text-xl font-bold">13,000 ETB</p>
-                </div>
-                <div class="bg-red-50 p-4 border border-red-200 rounded shadow-sm">
-                    <p class="text-sm text-gray-500">Platform Revenue (2%)</p>
-                    <p class="text-xl font-bold text-red-600">260 ETB</p>
-                </div>
-                <div class="bg-white p-4 border rounded shadow-sm">
-                    <p class="text-sm text-gray-500">Active Sellers</p>
-                    <p class="text-xl font-bold">1</p>
-                </div>
-                <div class="bg-white p-4 border rounded shadow-sm">
-                    <p class="text-sm text-gray-500">Products Live</p>
-                    <p id="totalProductsStat" class="text-xl font-bold">2</p>
-                </div>
-            </div>
-
-            <!-- Management Tools -->
-            <div class="grid grid-cols-2 gap-6">
-                <div class="bg-white p-6 border rounded shadow-sm">
-                    <h3 class="font-bold border-b pb-2 mb-4">Seller Approvals</h3>
-                    <div class="flex justify-between items-center text-sm p-2 bg-gray-50 rounded">
-                        <span>Abebe K. (Requested)</span>
-                        <button class="bg-blue-600 text-white px-3 py-1 rounded text-xs">Approve</button>
-                    </div>
-                </div>
-                <div class="bg-white p-6 border rounded shadow-sm">
-                    <h3 class="font-bold border-b pb-2 mb-4">Platform Settings</h3>
-                    <div class="flex justify-between items-center text-sm mb-2">
-                        <span>Global Commission Rate</span>
-                        <input type="text" value="2%" class="border p-1 w-16 text-center rounded">
-                    </div>
-                    <div class="flex justify-between items-center text-sm">
-                        <span>Payment Flow</span>
-                        <select class="border p-1 rounded">
-                            <option>Customer -> Admin -> Seller</option>
-                            <option>Customer -> Seller -> Admin</option>
-                        </select>
+        <!-- HOME VIEW -->
+        <section id="view-home" class="view-section active">
+            <!-- Hero Banner -->
+            <div class="relative bg-black rounded-2xl overflow-hidden mb-12">
+                <div class="absolute inset-0 bg-gradient-to-r from-black to-transparent z-10"></div>
+                <img src="https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&q=80&w=2000" class="w-full h-96 object-cover opacity-60" alt="Hero">
+                <div class="absolute inset-0 z-20 flex flex-col justify-center px-10 md:px-20 text-white w-full md:w-2/3">
+                    <h2 class="text-5xl font-black mb-4 leading-tight">The Premier Multi-Vendor <span class="text-orange-500">Outdoor Market</span></h2>
+                    <p class="text-xl mb-8">Buy from top sellers or start your own store today. We only take a 2% commission.</p>
+                    <div class="flex gap-4">
+                        <button onclick="navigate('shop')" class="bg-orange-600 text-white px-8 py-3 rounded-full font-bold hover:bg-orange-700 transition">Shop Now</button>
+                        <button onclick="navigate('login')" id="heroSellBtn" class="bg-white text-black px-8 py-3 rounded-full font-bold hover:bg-gray-200 transition">Become a Seller</button>
                     </div>
                 </div>
             </div>
+
+            <!-- Categories -->
+            <h3 class="text-2xl font-bold mb-6">Shop by Category</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12" id="homeCategories">
+                <!-- Injected via JS -->
+            </div>
+
+            <!-- Featured Products -->
+            <h3 class="text-2xl font-bold mb-6">Featured Products</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="homeFeaturedProducts">
+                <!-- Injected via JS -->
+            </div>
         </section>
-    </div>
 
-    <script>
-        // CORE STATE
-        let isSeller = false;
-        
-        // MOCK DATABASE
-        let products = [
-            { id: 1, name: "Tech Jacket", price: 5800, vendor: "Lalibela Official", category: "Apparel" },
-            { id: 2, name: "Mountain Boots", price: 7200, vendor: "Shoe Haven", category: "Footwear" }
-        ];
-
-        // ROUTING LOGIC
-        function showView(viewId) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
-            
-            if(viewId === 'shop') renderProducts();
-        }
-
-        // RENDER PRODUCTS
-        function renderProducts() {
-            const grid = document.getElementById('productGrid');
-            grid.innerHTML = '';
-            
-            products.forEach(p => {
-                grid.innerHTML += `
-                    <div class="bg-white p-4 rounded shadow-sm border border-gray-100 flex flex-col">
-                        <div class="bg-gray-200 h-40 rounded mb-3 flex items-center justify-center text-gray-400">Image</div>
-                        <span class="text-xs text-gray-500 uppercase tracking-wider">${p.category}</span>
-                        <h3 class="font-bold text-lg">${p.name}</h3>
-                        <p class="text-xs text-gray-500 mb-2">Sold by: ${p.vendor}</p>
-                        <div class="mt-auto pt-4 flex justify-between items-center">
-                            <p class="text-orange-600 font-black">${p.price} ETB</p>
-                            <button class="bg-black text-white px-3 py-1 rounded text-sm hover:bg-gray-800">Add</button>
+        <!-- SHOP VIEW -->
+        <section id="view-shop" class="view-section">
+            <div class="flex flex-col md:flex-row gap-8">
+                <!-- Filters Sidebar -->
+                <div class="w-full md:w-1/4 bg-white p-6 rounded-xl shadow-sm border h-fit">
+                    <h3 class="font-bold text-lg mb-4 flex items-center gap-2"><i data-lucide="filter" class="w-5 h-5"></i> Filters</h3>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-semibold mb-2">Category</h4>
+                        <div id="shopCategoryFilters" class="space-y-2">
+                            <!-- JS Injected -->
                         </div>
                     </div>
+
+                    <div class="mb-6">
+                        <h4 class="font-semibold mb-2">Max Price (ETB)</h4>
+                        <input type="range" min="0" max="20000" value="20000" class="w-full" oninput="document.getElementById('priceVal').innerText = this.value" onchange="filterProductsByPrice(this.value)">
+                        <p class="text-sm text-gray-500 mt-1">Up to: <span id="priceVal">20000</span> ETB</p>
+                    </div>
+                </div>
+
+                <!-- Product Grid -->
+                <div class="w-full md:w-3/4">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-3xl font-black" id="shopTitle">All Products</h2>
+                        <span class="text-gray-500 text-sm" id="shopProductCount">0 Items</span>
+                    </div>
+                    <div id="shopProductGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRODUCT DETAIL VIEW -->
+        <section id="view-product-detail" class="view-section">
+            <button onclick="navigate('shop')" class="text-gray-500 hover:text-black mb-6 flex items-center gap-2">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Shop
+            </button>
+            <div id="productDetailContainer" class="bg-white p-8 rounded-xl shadow-sm border flex flex-col md:flex-row gap-10">
+                <!-- JS Injected -->
+            </div>
+        </section>
+
+        <!-- AUTH VIEW (LOGIN/REGISTER) -->
+        <section id="view-login" class="view-section max-w-md mx-auto mt-10">
+            <div class="bg-white p-8 rounded-xl shadow-md border">
+                <h2 class="text-2xl font-black text-center mb-6" id="authTitle">Sign In</h2>
+                
+                <form id="authForm" onsubmit="handleAuth(event)" class="space-y-4">
+                    <div id="registerFields" class="hidden space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                            <input type="text" id="authName" class="mt-1 w-full border border-gray-300 rounded-md p-2 focus:ring-orange-500 focus:border-orange-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Email Address</label>
+                        <input type="email" id="authEmail" required class="mt-1 w-full border border-gray-300 rounded-md p-2 focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="authPassword" required class="mt-1 w-full border border-gray-300 rounded-md p-2 focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                    
+                    <!-- Simulation Override for Demo Purposes -->
+                    <div class="bg-blue-50 p-3 rounded text-xs text-blue-800 mt-2">
+                        <strong>Demo Accounts:</strong><br>
+                        Email: <em>user@test.com</em> (Customer)<br>
+                        Email: <em>seller@test.com</em> (Vendor)<br>
+                        Email: <em>admin@test.com</em> (Admin)<br>
+                        Password: <em>any</em>
+                    </div>
+
+                    <button type="submit" class="w-full bg-black text-white font-bold py-3 rounded-md hover:bg-gray-800 transition" id="authSubmitBtn">Sign In</button>
+                </form>
+
+                <p class="text-center mt-6 text-sm text-gray-600">
+                    <span id="authToggleText">Don't have an account?</span> 
+                    <button onclick="toggleAuthMode()" class="text-orange-600 font-bold hover:underline" id="authToggleBtn">Register</button>
+                </p>
+            </div>
+        </section>
+
+        <!-- ABOUT / FAQ VIEW (Simplified for structure) -->
+        <section id="view-about" class="view-section bg-white p-10 rounded-xl shadow border">
+            <h2 class="text-3xl font-black mb-6">About Lalibela Market</h2>
+            <p class="mb-4 text-gray-600">We connect top-tier outdoor equipment vendors directly with buyers. Our platform handles everything from product listings to secure payments.</p>
+            <h3 class="text-xl font-bold mt-8 mb-4">How our Commission System Works</h3>
+            <p class="mb-4 text-gray-600">We believe in fair trade. When a customer buys a product, they pay Lalibela Market directly. We take a flat <strong>2% platform fee</strong> to cover hosting, payment processing, and support. The remaining <strong>98%</strong> is immediately credited to the seller's dashboard for withdrawal.</p>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- 2. USER (CUSTOMER) PAGES                   -->
+        <!-- ========================================== -->
+
+        <!-- CART VIEW -->
+        <section id="view-cart" class="view-section">
+            <h2 class="text-3xl font-black mb-8">Shopping Cart</h2>
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Cart Items -->
+                <div class="w-full lg:w-2/3 bg-white p-6 rounded-xl shadow-sm border" id="cartItemsContainer">
+                    <!-- JS Injected -->
+                </div>
+
+                <!-- Order Summary -->
+                <div class="w-full lg:w-1/3">
+                    <div class="bg-gray-100 p-6 rounded-xl shadow-sm border sticky top-24">
+                        <h3 class="font-bold text-xl mb-4 border-b pb-2">Order Summary</h3>
+                        <div class="space-y-3 mb-6" id="cartSummaryDetails">
+                            <!-- JS Injected -->
+                        </div>
+                        <button onclick="navigate('checkout')" class="w-full bg-orange-600 text-white py-3 rounded-md font-bold hover:bg-orange-700 text-lg transition" id="checkoutBtn">Proceed to Checkout</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CHECKOUT VIEW -->
+        <section id="view-checkout" class="view-section">
+            <h2 class="text-3xl font-black mb-8">Checkout Securely</h2>
+            <div class="flex flex-col lg:flex-row gap-8">
+                <div class="w-full lg:w-2/3 space-y-6">
+                    <!-- Address -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2"><i data-lucide="map-pin" class="w-5 h-5"></i> Shipping Address</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" placeholder="Full Name" class="border p-2 rounded col-span-2">
+                            <input type="text" placeholder="City (e.g. Addis Ababa)" class="border p-2 rounded">
+                            <input type="text" placeholder="Phone Number" class="border p-2 rounded">
+                            <textarea placeholder="Detailed Address" class="border p-2 rounded col-span-2" rows="2"></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment System (Option A: Customer pays YOU) -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2"><i data-lucide="credit-card" class="w-5 h-5"></i> Payment Method</h3>
+                        <div class="bg-blue-50 border border-blue-200 p-4 rounded mb-4 text-sm text-blue-800">
+                            <strong>Platform Managed Payment:</strong> Your payment is processed securely by Lalibela Market. We hold the funds and release 98% to the seller once the order is confirmed, keeping 2% for platform fees.
+                        </div>
+                        <div class="space-y-3">
+                            <label class="flex items-center gap-3 p-3 border rounded cursor-pointer hover:bg-gray-50">
+                                <input type="radio" name="payment" checked class="w-4 h-4 text-orange-600">
+                                <span class="font-bold">Telebirr / Mobile Money</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 border rounded cursor-pointer hover:bg-gray-50">
+                                <input type="radio" name="payment" class="w-4 h-4 text-orange-600">
+                                <span class="font-bold">Credit / Debit Card</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Final Summary & Place Order -->
+                <div class="w-full lg:w-1/3">
+                    <div class="bg-gray-100 p-6 rounded-xl shadow-sm border sticky top-24">
+                        <h3 class="font-bold text-xl mb-4 border-b pb-2">Final Review</h3>
+                        <div id="checkoutSummaryList" class="mb-4 text-sm space-y-2 border-b pb-4"></div>
+                        <div class="flex justify-between font-black text-xl mb-6">
+                            <span>Total to Pay:</span>
+                            <span id="checkoutTotalText" class="text-orange-600">0 ETB</span>
+                        </div>
+                        <button onclick="processOrder()" class="w-full bg-black text-white py-4 rounded-md font-bold hover:bg-gray-800 text-lg transition flex items-center justify-center gap-2">
+                            <i data-lucide="check-circle" class="w-5 h-5"></i> Place Order Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- USER DASHBOARD -->
+        <section id="view-user-dashboard" class="view-section">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-black">My Dashboard</h2>
+                <button onclick="logout()" class="text-red-600 hover:underline font-bold text-sm">Sign Out</button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- User Nav Sidebar -->
+                <div class="col-span-1 space-y-2">
+                    <div class="bg-white rounded-xl shadow border overflow-hidden">
+                        <div class="p-4 bg-gray-50 border-b text-center">
+                            <div class="w-16 h-16 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-2 text-2xl font-black" id="userInitials">U</div>
+                            <p class="font-bold" id="dashUserName">User Name</p>
+                            <p class="text-xs text-gray-500" id="dashUserRole">Customer</p>
+                        </div>
+                        <div class="p-2">
+                            <button class="w-full text-left p-3 hover:bg-gray-50 rounded font-medium text-orange-600 bg-orange-50">Order History</button>
+                            <button class="w-full text-left p-3 hover:bg-gray-50 rounded font-medium text-gray-600">Profile Settings</button>
+                        </div>
+                    </div>
+
+                    <!-- Upgrade to Seller Banner -->
+                    <div id="becomeSellerBanner" class="bg-gradient-to-br from-green-600 to-green-800 text-white rounded-xl p-6 shadow-lg mt-6">
+                        <h3 class="font-bold text-lg mb-2 flex items-center gap-2"><i data-lucide="store" class="w-5 h-5"></i> Become a Seller</h3>
+                        <p class="text-sm mb-4 text-green-100">Start your own shop today. Keep 98% of your sales.</p>
+                        <button onclick="applyToBeSeller()" class="w-full bg-white text-green-800 py-2 rounded font-bold hover:bg-gray-100 transition shadow">Apply Now</button>
+                    </div>
+                </div>
+
+                <!-- Main Dash Content (Order History) -->
+                <div class="col-span-1 md:col-span-3 bg-white p-6 rounded-xl shadow border">
+                    <h3 class="font-bold text-xl mb-4 border-b pb-2">My Orders</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 text-gray-600 text-sm border-b">
+                                    <th class="p-3">Order ID</th>
+                                    <th class="p-3">Date</th>
+                                    <th class="p-3">Items</th>
+                                    <th class="p-3">Total</th>
+                                    <th class="p-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userOrderHistoryBody" class="text-sm">
+                                <!-- JS Injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- 3. SELLER PANEL (VENDOR DASHBOARD)         -->
+        <!-- ========================================== -->
+        <section id="view-seller-dashboard" class="view-section">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-black text-green-800 flex items-center gap-3"><i data-lucide="store"></i> Vendor Portal</h2>
+                <div class="flex gap-4">
+                    <button onclick="navigate('user-dashboard')" class="text-gray-600 hover:text-black font-medium text-sm">Customer View</button>
+                    <button onclick="logout()" class="text-red-600 hover:underline font-bold text-sm">Sign Out</button>
+                </div>
+            </div>
+
+            <!-- Earnings & Commission System Dashboard -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-sm font-medium text-gray-500">Gross Sales</p>
+                        <i data-lucide="trending-up" class="w-4 h-4 text-blue-500"></i>
+                    </div>
+                    <h4 class="text-2xl font-black" id="sellerGrossSales">0 ETB</h4>
+                    <p class="text-xs text-gray-400 mt-1">Total revenue generated</p>
+                </div>
+                
+                <div class="bg-red-50 p-6 rounded-xl shadow-sm border border-red-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-sm font-medium text-red-800">Platform Fee (2%)</p>
+                        <i data-lucide="pie-chart" class="w-4 h-4 text-red-500"></i>
+                    </div>
+                    <h4 class="text-2xl font-black text-red-600" id="sellerFeesPaid">- 0 ETB</h4>
+                    <p class="text-xs text-red-400 mt-1">Automatically deducted</p>
+                </div>
+
+                <div class="bg-green-50 p-6 rounded-xl shadow-sm border border-green-200 md:col-span-2">
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-sm font-medium text-green-800">Net Earnings (Available for Withdrawal)</p>
+                        <i data-lucide="dollar-sign" class="w-4 h-4 text-green-600"></i>
+                    </div>
+                    <div class="flex items-end justify-between">
+                        <h4 class="text-3xl font-black text-green-700" id="sellerNetEarnings">0 ETB</h4>
+                        <button class="bg-green-600 text-white px-4 py-2 rounded font-bold text-sm hover:bg-green-700 shadow">Withdraw Funds</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Add Product Form -->
+                <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm border h-fit">
+                    <h3 class="font-bold text-lg mb-4 border-b pb-2 flex items-center gap-2"><i data-lucide="plus-circle" class="w-5 h-5 text-orange-600"></i> Add New Product</h3>
+                    <form id="addProductForm" onsubmit="handleSellerAddProduct(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Product Name</label>
+                            <input type="text" id="addProdName" required class="w-full border p-2 rounded text-sm focus:ring-green-500 focus:border-green-500">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Price (ETB)</label>
+                                <input type="number" id="addProdPrice" required min="1" class="w-full border p-2 rounded text-sm focus:ring-green-500 focus:border-green-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Stock Qty</label>
+                                <input type="number" id="addProdStock" required min="1" value="10" class="w-full border p-2 rounded text-sm focus:ring-green-500 focus:border-green-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Category</label>
+                            <select id="addProdCategory" class="w-full border p-2 rounded text-sm bg-white focus:ring-green-500 focus:border-green-500">
+                                <option value="Tents">Tents & Shelters</option>
+                                <option value="Backpacks">Backpacks</option>
+                                <option value="Footwear">Footwear</option>
+                                <option value="Apparel">Apparel</option>
+                                <option value="Accessories">Accessories</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Image URL (Optional)</label>
+                            <input type="url" id="addProdImage" placeholder="https://..." class="w-full border p-2 rounded text-sm focus:ring-green-500 focus:border-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Description</label>
+                            <textarea id="addProdDesc" rows="3" required class="w-full border p-2 rounded text-sm focus:ring-green-500 focus:border-green-500"></textarea>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded text-xs text-gray-600 border border-dashed border-gray-300">
+                            <strong>Note:</strong> By publishing, you agree to the platform retaining 2% of the final sale price.
+                        </div>
+                        <button type="submit" class="w-full bg-black text-white font-bold py-2.5 rounded hover:bg-gray-800 transition shadow">Publish Product</button>
+                    </form>
+                </div>
+
+                <!-- Manage Products & Orders -->
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- Products Table -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border">
+                        <h3 class="font-bold text-lg mb-4 border-b pb-2 flex items-center gap-2"><i data-lucide="package" class="w-5 h-5 text-blue-600"></i> My Inventory</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wider border-b">
+                                        <th class="p-3">Product</th>
+                                        <th class="p-3">Category</th>
+                                        <th class="p-3">Price</th>
+                                        <th class="p-3">Stock</th>
+                                        <th class="p-3 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sellerProductsTableBody" class="text-sm divide-y divide-gray-100">
+                                    <!-- JS Injected -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Vendor Orders -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border">
+                        <h3 class="font-bold text-lg mb-4 border-b pb-2 flex items-center gap-2"><i data-lucide="shopping-bag" class="w-5 h-5 text-purple-600"></i> Customer Orders Received</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wider border-b">
+                                        <th class="p-3">Order ID</th>
+                                        <th class="p-3">Item(s)</th>
+                                        <th class="p-3">Buyer Paid</th>
+                                        <th class="p-3 text-green-700">Your Cut (98%)</th>
+                                        <th class="p-3">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sellerOrdersTableBody" class="text-sm divide-y divide-gray-100">
+                                    <!-- JS Injected -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- 4. ADMIN PANEL (MASTER CONTROL)            -->
+        <!-- ========================================== -->
+        <section id="view-admin-dashboard" class="view-section">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-black text-red-600 flex items-center gap-3"><i data-lucide="shield-alert"></i> Admin Master Control</h2>
+                <button onclick="logout()" class="text-red-600 hover:underline font-bold text-sm border border-red-200 px-3 py-1 rounded bg-red-50">Admin Sign Out</button>
+            </div>
+
+            <!-- Global Platform Stats -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white p-5 border-l-4 border-blue-500 rounded shadow-sm">
+                    <p class="text-sm text-gray-500 font-medium mb-1">Total Market Volume</p>
+                    <p class="text-2xl font-black" id="adminTotalVolume">0 ETB</p>
+                </div>
+                <div class="bg-gray-900 text-white p-5 border-l-4 border-orange-500 rounded shadow-sm">
+                    <p class="text-sm text-gray-400 font-medium mb-1">Platform Revenue (2%)</p>
+                    <p class="text-2xl font-black text-orange-400" id="adminTotalRevenue">0 ETB</p>
+                </div>
+                <div class="bg-white p-5 border-l-4 border-green-500 rounded shadow-sm">
+                    <p class="text-sm text-gray-500 font-medium mb-1">Registered Users</p>
+                    <p class="text-2xl font-black" id="adminTotalUsers">0</p>
+                </div>
+                <div class="bg-white p-5 border-l-4 border-purple-500 rounded shadow-sm">
+                    <p class="text-sm text-gray-500 font-medium mb-1">Active Products</p>
+                    <p class="text-2xl font-black" id="adminTotalProducts">0</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- User & Seller Management -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border">
+                    <h3 class="font-bold text-lg mb-4 border-b pb-2 flex items-center gap-2"><i data-lucide="users" class="w-5 h-5 text-gray-600"></i> User & Vendor Management</h3>
+                    <div class="overflow-x-auto max-h-96">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider sticky top-0">
+                                    <th class="p-3">User</th>
+                                    <th class="p-3">Email</th>
+                                    <th class="p-3">Role</th>
+                                    <th class="p-3 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminUsersTableBody" class="text-sm divide-y divide-gray-100">
+                                <!-- JS Injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="space-y-8">
+                    <!-- Global Settings -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-orange-200">
+                        <h3 class="font-bold text-lg mb-4 border-b pb-2 flex items-center gap-2"><i data-lucide="settings" class="w-5 h-5 text-orange-600"></i> Platform Settings</h3>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Global Commission Rate (%)</label>
+                            <div class="flex gap-2">
+                                <input type="number" id="adminCommissionRate" value="2" step="0.1" class="border p-2 rounded w-24 focus:ring-orange-500">
+                                <button onclick="updateCommissionRate()" class="bg-gray-800 text-white px-4 py-2 rounded text-sm font-bold hover:bg-black">Save Update</button>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Changes apply to future orders.</p>
+                        </div>
+                        
+                        <div class="mb-4 pt-4 border-t border-dashed">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Payment System Architecture</label>
+                            <select disabled class="w-full border p-2 rounded text-sm bg-gray-50 text-gray-600">
+                                <option selected>Option A: Customer pays Admin -> Admin pays Seller (- fee)</option>
+                                <option>Option B: Customer pays Seller -> Seller billed fee later (Risky)</option>
+                            </select>
+                            <p class="text-xs text-green-600 mt-1 font-medium">Currently using secure Option A.</p>
+                        </div>
+                    </div>
+
+                    <!-- All Platform Orders -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border">
+                        <h3 class="font-bold text-lg mb-4 border-b pb-2 flex items-center gap-2"><i data-lucide="globe" class="w-5 h-5 text-blue-600"></i> Recent Platform Orders</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wider">
+                                        <th class="p-2">ID</th>
+                                        <th class="p-2">Buyer</th>
+                                        <th class="p-2">Total</th>
+                                        <th class="p-2 text-orange-600">Fee Earned</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminGlobalOrdersBody" class="text-sm divide-y divide-gray-100">
+                                    <!-- JS Injected -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-auto">
+        <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
+                <p>&copy; 2026 Lalibela Market. All rights reserved.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-orange-600">Terms of Service</a>
+                    <a href="#" class="hover:text-orange-600">Privacy Policy</a>
+                    <a href="#" class="hover:text-orange-600">Seller Agreement</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast">Message</div>
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT: SYSTEM LOGIC & STATE           -->
+    <!-- ========================================== -->
+    <script>
+        // --- 1. SYSTEM STATE & DATABASE MOCK ---
+        
+        let platformSettings = {
+            commissionRate: 0.02 // 2%
+        };
+
+        // Users Database
+        let users = [
+            { id: 'u1', name: 'John Customer', email: 'user@test.com', password: 'any', role: 'user' },
+            { id: 'u2', name: 'Ethio Gear Co.', email: 'seller@test.com', password: 'any', role: 'seller' },
+            { id: 'u3', name: 'System Admin', email: 'admin@test.com', password: 'any', role: 'admin' },
+            { id: 'u4', name: 'Pending Vendor', email: 'pending@test.com', password: 'any', role: 'user', pendingSeller: true }
+        ];
+
+        let currentUser = null; // null | user object
+
+        // Products Database
+        let products = [
+            { id: 'p1', name: 'Simien Alpine Tent 3P', price: 12500, category: 'Tents', vendorId: 'u2', vendorName: 'Ethio Gear Co.', stock: 5, img: 'https://images.unsplash.com/photo-1504280390467-319b222955f2?auto=format&fit=crop&q=80&w=400', desc: 'Durable 3-person tent built for harsh mountain conditions.' },
+            { id: 'p2', name: 'Danakil Trekking Boots', price: 8200, category: 'Footwear', vendorId: 'u2', vendorName: 'Ethio Gear Co.', stock: 12, img: 'https://images.unsplash.com/photo-1520639888713-7851133b1ed0?auto=format&fit=crop&q=80&w=400', desc: 'Heat-resistant, heavy-duty hiking boots.' },
+            { id: 'p3', name: 'Omo Valley Backpack 65L', price: 5400, category: 'Backpacks', vendorId: 'u2', vendorName: 'Ethio Gear Co.', stock: 8, img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=400', desc: 'Large capacity backpack with ergonomic support.' },
+            { id: 'p4', name: 'Lalibela Fleece Jacket', price: 3100, category: 'Apparel', vendorId: 'u2', vendorName: 'Ethio Gear Co.', stock: 20, img: 'https://images.unsplash.com/photo-1544022613-e87ca75a784a?auto=format&fit=crop&q=80&w=400', desc: 'Warm, breathable fleece layer.' },
+            { id: 'p5', name: 'Camp Stove Pro', price: 1800, category: 'Accessories', vendorId: 'u2', vendorName: 'Ethio Gear Co.', stock: 15, img: 'https://images.unsplash.com/photo-1526600862080-60b5de7bc4f2?auto=format&fit=crop&q=80&w=400', desc: 'Compact gas stove for quick outdoor cooking.' },
+        ];
+
+        // Global Categories list based on products
+        const categories = [...new Set(products.map(p => p.category))];
+
+        // Orders Database
+        let orders = [
+            // Dummy historical order to show table data
+            { id: 'ORD-8821', buyerId: 'u1', buyerName: 'John Customer', items: [{...products[0], qty: 1}], total: 12500, date: new Date(Date.now() - 86400000).toLocaleDateString(), status: 'Delivered', vendorId: 'u2', platformFee: 250, vendorNet: 12250 }
+        ];
+
+        // Shopping Cart
+        let cart = [];
+
+
+        // --- 2. CORE UTILITIES & ROUTING ---
+        
+        function navigate(viewId, param = null) {
+            // Hide all
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            
+            // Route Guards
+            if (viewId === 'cart' || viewId === 'checkout' || viewId === 'user-dashboard') {
+                if (!currentUser) { showToast("Please login first"); viewId = 'login'; }
+            }
+            if (viewId === 'seller-dashboard' && (!currentUser || currentUser.role !== 'seller')) {
+                showToast("Access Denied. Vendor only."); viewId = 'home';
+            }
+            if (viewId === 'admin-dashboard' && (!currentUser || currentUser.role !== 'admin')) {
+                showToast("Access Denied. Admin only."); viewId = 'home';
+            }
+
+            // Show target
+            document.getElementById(`view-${viewId}`).classList.add('active');
+            window.scrollTo(0,0);
+
+            // View Specific Initialization
+            if(viewId === 'home') renderHome();
+            if(viewId === 'shop') renderShop();
+            if(viewId === 'product-detail' && param) renderProductDetail(param);
+            if(viewId === 'cart') renderCart();
+            if(viewId === 'checkout') renderCheckout();
+            if(viewId === 'user-dashboard') renderUserDashboard();
+            if(viewId === 'seller-dashboard') renderSellerDashboard();
+            if(viewId === 'admin-dashboard') renderAdminDashboard();
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.className = "show";
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        function formatMoney(num) {
+            return num.toLocaleString() + ' ETB';
+        }
+
+
+        // --- 3. AUTHENTICATION ---
+        
+        let isRegisterMode = false;
+        
+        function toggleAuthMode() {
+            isRegisterMode = !isRegisterMode;
+            document.getElementById('registerFields').classList.toggle('hidden');
+            document.getElementById('authTitle').innerText = isRegisterMode ? 'Create Account' : 'Sign In';
+            document.getElementById('authSubmitBtn').innerText = isRegisterMode ? 'Register' : 'Sign In';
+            document.getElementById('authToggleText').innerText = isRegisterMode ? 'Already have an account?' : "Don't have an account?";
+            document.getElementById('authToggleBtn').innerText = isRegisterMode ? 'Login' : 'Register';
+        }
+
+        function handleAuth(e) {
+            e.preventDefault();
+            const email = document.getElementById('authEmail').value;
+            const pass = document.getElementById('authPassword').value;
+            
+            if(isRegisterMode) {
+                const name = document.getElementById('authName').value;
+                const newUser = { id: 'u'+Date.now(), name, email, password: pass, role: 'user' };
+                users.push(newUser);
+                currentUser = newUser;
+                showToast("Registration successful!");
+            } else {
+                const user = users.find(u => u.email === email && u.password === pass);
+                if(user) {
+                    currentUser = user;
+                    showToast(`Welcome back, ${user.name}`);
+                } else {
+                    showToast("Invalid credentials");
+                    return;
+                }
+            }
+            
+            updateNavigation();
+            
+            // Redirect based on role
+            if(currentUser.role === 'admin') navigate('admin-dashboard');
+            else if(currentUser.role === 'seller') navigate('seller-dashboard');
+            else navigate('home');
+        }
+
+        function logout() {
+            currentUser = null;
+            cart = [];
+            showToast("Logged out successfully");
+            updateNavigation();
+            navigate('home');
+        }
+
+        function updateNavigation() {
+            const area = document.getElementById('authNavArea');
+            if(!currentUser) {
+                area.innerHTML = `
+                    <button onclick="navigate('cart')" class="text-gray-600 hover:text-black relative">
+                        <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+                    </button>
+                    <button onclick="navigate('login')" class="bg-black text-white px-5 py-2 rounded-full font-bold hover:bg-gray-800 text-sm">Sign In</button>
                 `;
-            });
+            } else {
+                const cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
+                const badge = cartCount > 0 ? `<span class="absolute -top-2 -right-2 bg-orange-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">${cartCount}</span>` : '';
+                
+                let dashboardBtn = '';
+                if(currentUser.role === 'admin') {
+                    dashboardBtn = `<button onclick="navigate('admin-dashboard')" class="text-red-600 font-bold hover:underline text-sm mr-4">Admin Panel</button>`;
+                } else if(currentUser.role === 'seller') {
+                    dashboardBtn = `<button onclick="navigate('seller-dashboard')" class="text-green-600 font-bold hover:underline text-sm mr-4">Vendor Portal</button>`;
+                }
+
+                area.innerHTML = `
+                    ${dashboardBtn}
+                    <button onclick="navigate('cart')" class="text-gray-600 hover:text-orange-600 relative mr-4">
+                        <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+                        ${badge}
+                    </button>
+                    <button onclick="navigate('user-dashboard')" class="flex items-center gap-2 text-sm font-bold bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200">
+                        <i data-lucide="user" class="w-4 h-4"></i> Account
+                    </button>
+                `;
+            }
+            lucide.createIcons();
         }
 
-        // SELLER REGISTRATION FLOW
-        function upgradeToSeller() {
-            isSeller = true;
-            document.getElementById('becomeSellerBtn').classList.add('hidden');
-            document.getElementById('sellerStatus').classList.remove('hidden');
-            document.getElementById('navSellerBtn').classList.remove('hidden');
-            
-            // Auto redirect to seller dashboard to show them around
-            setTimeout(() => showView('seller'), 800);
+
+        // --- 4. PUBLIC SHOPPING LOGIC ---
+
+        function renderHome() {
+            // Categories
+            const catHtml = categories.map(c => `
+                <div class="bg-white p-4 rounded-xl shadow-sm border text-center cursor-pointer hover:border-orange-500 transition" onclick="navigate('shop'); filterByCategory('${c}')">
+                    <span class="font-bold text-gray-700">${c}</span>
+                </div>
+            `).join('');
+            document.getElementById('homeCategories').innerHTML = catHtml;
+
+            // Featured
+            const featured = products.slice(0, 4);
+            let featHtml = '';
+            featured.forEach(p => featHtml += createProductCard(p));
+            document.getElementById('homeFeaturedProducts').innerHTML = featHtml;
+            lucide.createIcons();
         }
 
-        // ADD NEW PRODUCT (VENDOR FEATURE)
-        function postProduct(e) {
-            e.preventDefault(); // Stop form submission
+        let activeCategoryFilter = null;
+        let activePriceFilter = 20000;
+        let searchQuery = "";
+
+        function renderShop() {
+            // Setup Categories Sidebar
+            const catHtml = ['All', ...categories].map(c => `
+                <label class="flex items-center gap-2 cursor-pointer hover:text-orange-600 ${activeCategoryFilter === c ? 'text-orange-600 font-bold' : 'text-gray-600'}">
+                    <input type="radio" name="catFilter" class="hidden" onclick="filterByCategory('${c === 'All' ? null : c}')">
+                    ${c}
+                </label>
+            `).join('');
+            document.getElementById('shopCategoryFilters').innerHTML = catHtml;
+
+            // Filter Products Array
+            let displayProducts = products;
             
-            const name = document.getElementById('pName').value;
-            const price = parseFloat(document.getElementById('pPrice').value);
-            const category = document.getElementById('pCategory').value || "General";
+            if(activeCategoryFilter) {
+                displayProducts = displayProducts.filter(p => p.category === activeCategoryFilter);
+                document.getElementById('shopTitle').innerText = activeCategoryFilter;
+            } else {
+                document.getElementById('shopTitle').innerText = "All Products";
+            }
             
-            // Add to database
-            products.push({
-                id: Date.now(),
-                name: name,
-                price: price,
-                vendor: "My Store (You)",
-                category: category
+            if(searchQuery) {
+                displayProducts = displayProducts.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.category.toLowerCase().includes(searchQuery.toLowerCase()));
+            }
+
+            displayProducts = displayProducts.filter(p => p.price <= activePriceFilter);
+
+            // Render Grid
+            document.getElementById('shopProductCount').innerText = `${displayProducts.length} Items`;
+            const grid = document.getElementById('shopProductGrid');
+            if(displayProducts.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-10 text-center text-gray-500">No products found matching criteria.</div>`;
+            } else {
+                grid.innerHTML = displayProducts.map(p => createProductCard(p)).join('');
+            }
+            lucide.createIcons();
+        }
+
+        function createProductCard(p) {
+            return `
+                <div class="bg-white rounded-xl shadow-sm border overflow-hidden flex flex-col group cursor-pointer hover:shadow-md transition" onclick="navigate('product-detail', '${p.id}')">
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="${p.img}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <span class="text-xs text-orange-500 font-bold uppercase tracking-wider mb-1">${p.category}</span>
+                        <h4 class="font-bold text-lg mb-1 line-clamp-1">${p.name}</h4>
+                        <p class="text-xs text-gray-500 mb-3 flex items-center gap-1"><i data-lucide="store" class="w-3 h-3"></i> ${p.vendorName}</p>
+                        <div class="mt-auto pt-3 border-t flex justify-between items-center">
+                            <span class="font-black text-lg">${formatMoney(p.price)}</span>
+                            <button onclick="event.stopPropagation(); addToCart('${p.id}')" class="bg-gray-100 hover:bg-black hover:text-white p-2 rounded-full transition">
+                                <i data-lucide="plus" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function filterByCategory(cat) { activeCategoryFilter = cat; renderShop(); }
+        function filterProductsByPrice(val) { activePriceFilter = val; renderShop(); }
+        function handleSearch(e) { searchQuery = e.target.value; if(document.getElementById('view-shop').classList.contains('active')) renderShop(); }
+
+        function renderProductDetail(id) {
+            const p = products.find(x => x.id === id);
+            if(!p) return;
+
+            document.getElementById('productDetailContainer').innerHTML = `
+                <div class="w-full md:w-1/2">
+                    <img src="${p.img}" class="w-full rounded-xl object-cover h-96">
+                </div>
+                <div class="w-full md:w-1/2 flex flex-col">
+                    <span class="text-sm text-orange-500 font-bold tracking-wider mb-2">${p.category}</span>
+                    <h2 class="text-4xl font-black mb-2">${p.name}</h2>
+                    <p class="text-gray-500 mb-4 flex items-center gap-2"><i data-lucide="store" class="w-4 h-4"></i> Sold by: <span class="font-bold text-gray-800">${p.vendorName}</span></p>
+                    <p class="text-3xl font-black mb-6 border-b pb-6">${formatMoney(p.price)}</p>
+                    <p class="text-gray-700 leading-relaxed mb-8 flex-grow">${p.desc}</p>
+                    <div class="flex gap-4">
+                        <button onclick="addToCart('${p.id}')" class="flex-1 bg-black text-white py-4 rounded-lg font-bold text-lg hover:bg-gray-800 transition flex items-center justify-center gap-2">
+                            <i data-lucide="shopping-cart"></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        // --- 5. CART & CHECKOUT LOGIC ---
+
+        function addToCart(pId) {
+            if(!currentUser) { navigate('login'); return; }
+            const p = products.find(x => x.id === pId);
+            const existing = cart.find(x => x.id === pId);
+            
+            if(existing) existing.qty += 1;
+            else cart.push({...p, qty: 1});
+            
+            showToast("Added to Cart");
+            updateNavigation();
+        }
+
+        function removeFromCart(pId) {
+            cart = cart.filter(x => x.id !== pId);
+            renderCart();
+            updateNavigation();
+        }
+
+        function updateCartQty(pId, delta) {
+            const item = cart.find(x => x.id === pId);
+            if(item) {
+                item.qty += delta;
+                if(item.qty <= 0) removeFromCart(pId);
+                else { renderCart(); updateNavigation(); }
+            }
+        }
+
+        function getCartTotals() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            return { subtotal };
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItemsContainer');
+            if(cart.length === 0) {
+                container.innerHTML = `<div class="text-center py-10"><p class="text-gray-500 mb-4">Your cart is empty.</p><button onclick="navigate('shop')" class="text-orange-600 font-bold">Continue Shopping</button></div>`;
+                document.getElementById('checkoutBtn').disabled = true;
+                document.getElementById('checkoutBtn').classList.add('opacity-50', 'cursor-not-allowed');
+                document.getElementById('cartSummaryDetails').innerHTML = '';
+                return;
+            }
+
+            document.getElementById('checkoutBtn').disabled = false;
+            document.getElementById('checkoutBtn').classList.remove('opacity-50', 'cursor-not-allowed');
+
+            container.innerHTML = cart.map(item => `
+                <div class="flex items-center justify-between py-4 border-b last:border-0">
+                    <div class="flex items-center gap-4">
+                        <img src="${item.img}" class="w-16 h-16 rounded object-cover">
+                        <div>
+                            <h4 class="font-bold">${item.name}</h4>
+                            <p class="text-sm text-gray-500">${formatMoney(item.price)}</p>
+                            <p class="text-xs text-orange-500">Seller: ${item.vendorName}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center border rounded">
+                            <button onclick="updateCartQty('${item.id}', -1)" class="px-3 py-1 hover:bg-gray-100">-</button>
+                            <span class="px-3 py-1 font-bold">${item.qty}</span>
+                            <button onclick="updateCartQty('${item.id}', 1)" class="px-3 py-1 hover:bg-gray-100">+</button>
+                        </div>
+                        <div class="w-24 text-right font-black">${formatMoney(item.price * item.qty)}</div>
+                        <button onclick="removeFromCart('${item.id}')" class="text-red-500 hover:text-red-700"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                    </div>
+                </div>
+            `).join('');
+
+            const totals = getCartTotals();
+            document.getElementById('cartSummaryDetails').innerHTML = `
+                <div class="flex justify-between"><span>Subtotal:</span> <span class="font-bold">${formatMoney(totals.subtotal)}</span></div>
+                <div class="flex justify-between"><span>Shipping:</span> <span class="text-green-600">Free</span></div>
+                <div class="flex justify-between font-black text-xl pt-3 border-t mt-3"><span>Total:</span> <span>${formatMoney(totals.subtotal)}</span></div>
+            `;
+            lucide.createIcons();
+        }
+
+        function renderCheckout() {
+            if(cart.length === 0) { navigate('cart'); return; }
+            
+            const totals = getCartTotals();
+            const list = cart.map(item => `
+                <div class="flex justify-between text-gray-600">
+                    <span>${item.qty}x ${item.name}</span>
+                    <span>${formatMoney(item.price * item.qty)}</span>
+                </div>
+            `).join('');
+            
+            document.getElementById('checkoutSummaryList').innerHTML = list;
+            document.getElementById('checkoutTotalText').innerText = formatMoney(totals.subtotal);
+        }
+
+        function processOrder() {
+            if(cart.length === 0) return;
+
+            // Process each item (can be multiple sellers in one cart)
+            cart.forEach(item => {
+                const itemTotal = item.price * item.qty;
+                const platformFee = itemTotal * platformSettings.commissionRate;
+                const vendorNet = itemTotal - platformFee;
+
+                const order = {
+                    id: 'ORD-' + Math.floor(1000 + Math.random() * 9000),
+                    buyerId: currentUser.id,
+                    buyerName: currentUser.name,
+                    items: [{...item}], // Simplified: 1 order line per vendor for easy tracking
+                    total: itemTotal,
+                    date: new Date().toLocaleDateString(),
+                    status: 'Processing',
+                    vendorId: item.vendorId,
+                    platformFee: platformFee,
+                    vendorNet: vendorNet
+                };
+                orders.push(order);
+                
+                // Deduct stock
+                const dbProduct = products.find(p => p.id === item.id);
+                if(dbProduct) dbProduct.stock -= item.qty;
             });
+
+            cart = []; // Empty cart
+            updateNavigation();
+            showToast("Order Placed Successfully!");
+            navigate('user-dashboard');
+        }
+
+
+        // --- 6. USER DASHBOARD LOGIC ---
+
+        function renderUserDashboard() {
+            document.getElementById('dashUserName').innerText = currentUser.name;
+            document.getElementById('dashUserRole').innerText = currentUser.role === 'user' ? 'Customer' : 'Vendor';
+            document.getElementById('userInitials').innerText = currentUser.name.charAt(0).toUpperCase();
+
+            // Hide upgrade banner if already seller or pending
+            const banner = document.getElementById('becomeSellerBanner');
+            if(currentUser.role !== 'user' || currentUser.pendingSeller) {
+                banner.classList.add('hidden');
+            } else {
+                banner.classList.remove('hidden');
+            }
+
+            const myOrders = orders.filter(o => o.buyerId === currentUser.id);
+            const tbody = document.getElementById('userOrderHistoryBody');
             
-            // Reset form and notify
+            if(myOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500">No orders yet. Start shopping!</td></tr>`;
+            } else {
+                tbody.innerHTML = myOrders.map(o => `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3 font-medium text-orange-600">${o.id}</td>
+                        <td class="p-3">${o.date}</td>
+                        <td class="p-3">${o.items[0].name} (x${o.items[0].qty})</td>
+                        <td class="p-3 font-bold">${formatMoney(o.total)}</td>
+                        <td class="p-3">
+                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">${o.status}</span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function applyToBeSeller() {
+            currentUser.pendingSeller = true;
+            showToast("Application sent to Admin. Pending approval.");
+            renderUserDashboard();
+        }
+
+
+        // --- 7. SELLER DASHBOARD LOGIC (COMMISSION SYSTEM) ---
+
+        function renderSellerDashboard() {
+            // Stats Calculations (The Commission Math)
+            const mySales = orders.filter(o => o.vendorId === currentUser.id);
+            
+            let gross = 0;
+            let feePaid = 0;
+            let net = 0;
+
+            mySales.forEach(o => {
+                gross += o.total;
+                feePaid += o.platformFee;
+                net += o.vendorNet;
+            });
+
+            document.getElementById('sellerGrossSales').innerText = formatMoney(gross);
+            document.getElementById('sellerFeesPaid').innerText = '- ' + formatMoney(feePaid);
+            document.getElementById('sellerNetEarnings').innerText = formatMoney(net);
+
+            // My Products
+            const myProducts = products.filter(p => p.vendorId === currentUser.id);
+            const prodBody = document.getElementById('sellerProductsTableBody');
+            prodBody.innerHTML = myProducts.map(p => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3 flex items-center gap-3">
+                        <img src="${p.img}" class="w-10 h-10 rounded object-cover">
+                        <span class="font-bold">${p.name}</span>
+                    </td>
+                    <td class="p-3 text-xs text-gray-500">${p.category}</td>
+                    <td class="p-3 font-bold">${formatMoney(p.price)}</td>
+                    <td class="p-3 ${p.stock < 5 ? 'text-red-600 font-bold' : ''}">${p.stock}</td>
+                    <td class="p-3 text-right">
+                        <button onclick="sellerDeleteProduct('${p.id}')" class="text-red-500 hover:text-red-700 text-sm">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Customer Orders Received
+            const orderBody = document.getElementById('sellerOrdersTableBody');
+            if(mySales.length === 0) {
+                orderBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500">No sales yet.</td></tr>`;
+            } else {
+                orderBody.innerHTML = mySales.map(o => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 font-medium">${o.id}</td>
+                        <td class="p-3 text-sm">${o.items[0].name} (x${o.items[0].qty})</td>
+                        <td class="p-3">${formatMoney(o.total)}</td>
+                        <td class="p-3 font-black text-green-700">${formatMoney(o.vendorNet)}</td>
+                        <td class="p-3"><span class="text-xs bg-gray-200 px-2 py-1 rounded">${o.status}</span></td>
+                    </tr>
+                `).join('');
+            }
+            lucide.createIcons();
+        }
+
+        function handleSellerAddProduct(e) {
+            e.preventDefault();
+            const newProd = {
+                id: 'p'+Date.now(),
+                name: document.getElementById('addProdName').value,
+                price: parseFloat(document.getElementById('addProdPrice').value),
+                stock: parseInt(document.getElementById('addProdStock').value),
+                category: document.getElementById('addProdCategory').value,
+                img: document.getElementById('addProdImage').value || 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop&q=80&w=400',
+                desc: document.getElementById('addProdDesc').value,
+                vendorId: currentUser.id,
+                vendorName: currentUser.name
+            };
+            products.push(newProd);
             e.target.reset();
-            alert("Product published successfully! Customers can now buy it.");
-            
-            // Update admin stats
-            document.getElementById('totalProductsStat').innerText = products.length;
+            showToast("Product published successfully!");
+            renderSellerDashboard();
         }
 
-        // Initialize icons and initial view
-        lucide.createIcons();
-        renderProducts();
+        function sellerDeleteProduct(id) {
+            products = products.filter(p => p.id !== id);
+            renderSellerDashboard();
+        }
+
+
+        // --- 8. ADMIN DASHBOARD LOGIC ---
+
+        function renderAdminDashboard() {
+            // Global Stats
+            let totalVolume = 0;
+            let totalPlatformFee = 0;
+            orders.forEach(o => {
+                totalVolume += o.total;
+                totalPlatformFee += o.platformFee;
+            });
+
+            document.getElementById('adminTotalVolume').innerText = formatMoney(totalVolume);
+            document.getElementById('adminTotalRevenue').innerText = formatMoney(totalPlatformFee);
+            document.getElementById('adminTotalUsers').innerText = users.length;
+            document.getElementById('adminTotalProducts').innerText = products.length;
+            document.getElementById('adminCommissionRate').value = platformSettings.commissionRate * 100;
+
+            // Users Table
+            const uBody = document.getElementById('adminUsersTableBody');
+            uBody.innerHTML = users.map(u => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3 font-medium">${u.name} ${u.id === currentUser.id ? '(You)' : ''}</td>
+                    <td class="p-3 text-sm">${u.email}</td>
+                    <td class="p-3">
+                        <span class="text-xs px-2 py-1 rounded ${u.role==='admin' ? 'bg-red-100 text-red-800' : u.role==='seller' ? 'bg-green-100 text-green-800' : 'bg-gray-200'}">${u.role.toUpperCase()}</span>
+                    </td>
+                    <td class="p-3 text-right">
+                        ${u.pendingSeller ? `<button onclick="approveSeller('${u.id}')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold shadow hover:bg-blue-700 mr-2">Approve Vendor</button>` : ''}
+                        ${u.role !== 'admin' ? `<button class="text-red-500 hover:text-red-700 text-xs">Block</button>` : ''}
+                    </td>
+                </tr>
+            `).join('');
+
+            // All Orders Table
+            const oBody = document.getElementById('adminGlobalOrdersBody');
+            oBody.innerHTML = orders.map(o => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-2 text-xs font-medium">${o.id}</td>
+                    <td class="p-2 text-xs">${o.buyerName}</td>
+                    <td class="p-2 text-sm font-bold">${formatMoney(o.total)}</td>
+                    <td class="p-2 text-sm font-black text-orange-600">+ ${formatMoney(o.platformFee)}</td>
+                </tr>
+            `).join('');
+            
+            lucide.createIcons();
+        }
+
+        function approveSeller(uId) {
+            const user = users.find(u => u.id === uId);
+            if(user) {
+                user.role = 'seller';
+                user.pendingSeller = false;
+                showToast(`${user.name} is now a Vendor!`);
+                renderAdminDashboard();
+            }
+        }
+
+        function updateCommissionRate() {
+            const val = parseFloat(document.getElementById('adminCommissionRate').value);
+            if(val >= 0 && val <= 100) {
+                platformSettings.commissionRate = val / 100;
+                showToast(`Platform fee updated to ${val}%`);
+            } else {
+                showToast("Invalid percentage");
+            }
+        }
+
+
+        // --- INIT SYSTEM ---
+        window.onload = () => {
+            updateNavigation();
+            navigate('home');
+        };
+
     </script>
 </body>
 </html>
+
+```

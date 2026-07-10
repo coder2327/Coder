@@ -1,0 +1,309 @@
+```react
+import React, { useState, useEffect } from 'react';
+import { Clock, MapPin, Ticket, User, Flame, ChevronRight, CheckCircle2, QrCode } from 'lucide-react';
+
+// --- MOCK DATA ---
+const MOCK_DEALS = [
+  {
+    id: 1,
+    title: "VIP Booth & Signature Cocktails",
+    venue: "The Neon Lounge",
+    neighborhood: "Downtown",
+    originalPrice: 85,
+    flashPrice: 35,
+    slotsLeft: 2,
+    totalSlots: 5,
+    expiresIn: 7200, // 2 hours in seconds
+    image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 2,
+    title: "Omakase Tasting for Two",
+    venue: "Sushi Roku",
+    neighborhood: "Westside",
+    originalPrice: 150,
+    flashPrice: 75,
+    slotsLeft: 1,
+    totalSlots: 4,
+    expiresIn: 3600, // 1 hour
+    image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 3,
+    title: "Escape Room: The Vault",
+    venue: "Enigma Quests",
+    neighborhood: "Arts District",
+    originalPrice: 100,
+    flashPrice: 40,
+    slotsLeft: 4,
+    totalSlots: 8,
+    expiresIn: 10800, // 3 hours
+    image: "https://images.unsplash.com/photo-1605806616949-1e87b487cb2a?auto=format&fit=crop&q=80&w=800"
+  }
+];
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('feed'); // 'feed' or 'vouchers'
+  const [deals, setDeals] = useState(MOCK_DEALS);
+  const [myVouchers, setMyVouchers] = useState([]);
+  const [selectedDeal, setSelectedDeal] = useState(null);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  // Global Countdown Timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setDeals(prevDeals => 
+        prevDeals.map(deal => ({
+          ...deal,
+          expiresIn: Math.max(0, deal.expiresIn - 1)
+        }))
+      );
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (seconds) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h}h ${m}m ${s}s`;
+  };
+
+  const handlePurchase = () => {
+    setIsCheckingOut(true);
+    setTimeout(() => {
+      // Create Voucher
+      const newVoucher = {
+        ...selectedDeal,
+        voucherCode: 'FT-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
+        purchasedAt: new Date().toLocaleTimeString()
+      };
+      
+      // Update state
+      setMyVouchers([newVoucher, ...myVouchers]);
+      
+      // Reduce slots in feed
+      setDeals(deals.map(d => 
+        d.id === selectedDeal.id ? { ...d, slotsLeft: d.slotsLeft - 1 } : d
+      ));
+
+      setIsCheckingOut(false);
+      setSelectedDeal(null);
+      setActiveTab('vouchers');
+    }, 1500); // Simulate network delay
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-purple-500/30 pb-20">
+      
+      {/* Top Navigation */}
+      <nav className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-white/10 px-4 py-4 flex justify-between items-center">
+        <div className="flex items-center gap-2 text-xl font-black tracking-tighter">
+          <Flame className="w-6 h-6 text-purple-500 fill-purple-500" />
+          <span>FLASH<span className="text-purple-400">TABLE</span></span>
+        </div>
+        <div className="flex gap-4">
+          <button className="text-slate-400 hover:text-white transition-colors">
+            <User className="w-6 h-6" />
+          </button>
+        </div>
+      </nav>
+
+      {/* Main Content Area */}
+      <main className="max-w-md mx-auto p-4 pt-6">
+        
+        {activeTab === 'feed' ? (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex justify-between items-end">
+              <div>
+                <h1 className="text-2xl font-bold">Live Tonight</h1>
+                <p className="text-slate-400 text-sm flex items-center gap-1 mt-1">
+                  <MapPin className="w-4 h-4" /> Addis Ababa (Within 5km)
+                </p>
+              </div>
+              <div className="bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full text-xs font-bold border border-purple-500/30 animate-pulse">
+                {deals.length} Active Drops
+              </div>
+            </div>
+
+            {/* Deals Grid */}
+            <div className="space-y-5">
+              {deals.map(deal => (
+                <div 
+                  key={deal.id} 
+                  onClick={() => deal.slotsLeft > 0 && setSelectedDeal(deal)}
+                  className={`relative group bg-slate-900 rounded-2xl overflow-hidden border transition-all ${
+                    deal.slotsLeft > 0 
+                      ? 'border-white/10 hover:border-purple-500/50 cursor-pointer shadow-lg hover:shadow-purple-500/20' 
+                      : 'border-red-900/50 opacity-60 cursor-not-allowed'
+                  }`}
+                >
+                  <div className="relative h-48 w-full">
+                    <img src={deal.image} alt={deal.title} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
+                    
+                    {/* Time Badge */}
+                    <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-1.5 text-sm font-semibold">
+                      <Clock className="w-4 h-4 text-purple-400" />
+                      {formatTime(deal.expiresIn)}
+                    </div>
+                  </div>
+
+                  <div className="p-4">
+                    <h3 className="text-lg font-bold leading-tight">{deal.title}</h3>
+                    <p className="text-slate-400 text-sm mt-1">{deal.venue} • {deal.neighborhood}</p>
+                    
+                    <div className="mt-4 flex justify-between items-end">
+                      <div>
+                        <p className="text-xs text-slate-500 line-through">${deal.originalPrice}</p>
+                        <p className="text-2xl font-black text-green-400">${deal.flashPrice}</p>
+                      </div>
+                      
+                      {deal.slotsLeft > 0 ? (
+                        <div className="text-right">
+                          <p className="text-xs font-bold text-orange-400 mb-1">
+                            Only {deal.slotsLeft} left!
+                          </p>
+                          <div className="w-24 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-gradient-to-r from-orange-500 to-orange-400 rounded-full" 
+                              style={{ width: `${(deal.slotsLeft / deal.totalSlots) * 100}%` }}
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-red-500 font-bold bg-red-500/10 px-3 py-1 rounded-lg">
+                          SOLD OUT
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <h1 className="text-2xl font-bold">My Vouchers</h1>
+            
+            {myVouchers.length === 0 ? (
+              <div className="text-center py-20 bg-slate-900 rounded-2xl border border-white/5">
+                <Ticket className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                <h3 className="text-lg font-semibold text-slate-300">No active plans yet</h3>
+                <p className="text-slate-500 text-sm mt-1">Grab a deal before they're gone!</p>
+                <button 
+                  onClick={() => setActiveTab('feed')}
+                  className="mt-6 text-purple-400 font-semibold hover:text-purple-300"
+                >
+                  Browse Deals &rarr;
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {myVouchers.map((voucher, idx) => (
+                  <div key={idx} className="bg-slate-900 rounded-2xl p-1 border border-purple-500/30 relative overflow-hidden">
+                    <div className="absolute -right-4 -top-4 w-24 h-24 bg-purple-500/20 blur-2xl rounded-full" />
+                    
+                    <div className="p-4 border-b border-dashed border-white/20">
+                      <h3 className="text-lg font-bold">{voucher.title}</h3>
+                      <p className="text-slate-400">{voucher.venue}</p>
+                    </div>
+                    
+                    <div className="p-4 flex justify-between items-center bg-black/20">
+                      <div>
+                        <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Voucher Code</p>
+                        <p className="text-xl font-mono font-bold tracking-widest text-purple-400">{voucher.voucherCode}</p>
+                      </div>
+                      <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
+                        <QrCode className="w-8 h-8 text-black" />
+                      </div>
+                    </div>
+                    
+                    <div className="px-4 py-3 text-xs text-slate-500 text-center flex justify-center items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3 text-green-500" /> Valid for tonight only
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-0 w-full bg-slate-950/90 backdrop-blur-xl border-t border-white/10 pb-safe">
+        <div className="max-w-md mx-auto flex justify-around p-3">
+          <button 
+            onClick={() => setActiveTab('feed')}
+            className={`flex flex-col items-center gap-1 p-2 ${activeTab === 'feed' ? 'text-purple-400' : 'text-slate-500'}`}
+          >
+            <Flame className="w-6 h-6" />
+            <span className="text-[10px] font-semibold uppercase tracking-wider">Deals</span>
+          </button>
+          <button 
+            onClick={() => setActiveTab('vouchers')}
+            className={`flex flex-col items-center gap-1 p-2 ${activeTab === 'vouchers' ? 'text-purple-400' : 'text-slate-500'}`}
+          >
+            <Ticket className="w-6 h-6" />
+            <span className="text-[10px] font-semibold uppercase tracking-wider">Vouchers</span>
+            {myVouchers.length > 0 && (
+              <span className="absolute top-2 ml-6 w-2.5 h-2.5 bg-purple-500 rounded-full animate-pulse" />
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Checkout Modal */}
+      {selectedDeal && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-slate-900 w-full max-w-sm rounded-3xl border border-white/10 overflow-hidden shadow-2xl animate-in slide-in-from-bottom-8">
+            <div className="relative h-32">
+              <img src={selectedDeal.image} alt={selectedDeal.title} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent" />
+              <button 
+                onClick={() => setSelectedDeal(null)}
+                className="absolute top-3 right-3 bg-black/50 p-2 rounded-full text-white/70 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <h2 className="text-xl font-bold">{selectedDeal.title}</h2>
+              <p className="text-slate-400 text-sm mt-1 mb-6">{selectedDeal.venue}</p>
+              
+              <div className="space-y-3 mb-6 p-4 bg-black/30 rounded-2xl border border-white/5">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-400">Original Price</span>
+                  <span className="line-through text-slate-500">${selectedDeal.originalPrice}.00</span>
+                </div>
+                <div className="flex justify-between font-bold text-lg">
+                  <span className="text-white">Flash Price</span>
+                  <span className="text-green-400">${selectedDeal.flashPrice}.00</span>
+                </div>
+              </div>
+
+              <button 
+                onClick={handlePurchase}
+                disabled={isCheckingOut}
+                className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-wait"
+              >
+                {isCheckingOut ? (
+                  <span className="animate-pulse">Processing...</span>
+                ) : (
+                  <>Slide to Buy Now <ChevronRight className="w-5 h-5" /></>
+                )}
+              </button>
+              
+              <p className="text-center text-xs text-slate-500 mt-4">
+                Powered securely by Stripe
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+```

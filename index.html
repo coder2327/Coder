@@ -1,536 +1,242 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lalibela Outdoors</title>
-    <!-- Tailwind CSS for Styling -->
+    <title>Lalibela Marketplace | Multi-Vendor System</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* Smooth scrolling and basic animations */
-        html { scroll-behavior: smooth; }
-        .fade-in { animation: fadeIn 0.5s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Hide scrollbar for cart but allow scrolling */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .view { display: none; }
+        .view.active { display: block; }
     </style>
 </head>
-<body class="min-h-screen bg-white font-sans text-gray-900 overflow-x-hidden selection:bg-[#C46C3B] selection:text-white">
+<body class="bg-gray-50 text-gray-800">
 
-    <!-- Announcement Bar -->
-    <div class="bg-[#C46C3B] text-white text-xs font-bold tracking-widest uppercase text-center py-2 px-4">
-        Free Shipping across Ethiopia on orders over 5,000 ETB
-    </div>
-
-    <!-- HEADER -->
-    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div class="flex justify-between items-center">
-                
-                <!-- Mobile Menu Trigger -->
-                <button onclick="toggleMobileMenu()" class="md:hidden p-2 -ml-2 text-gray-600 hover:text-[#C46C3B] transition-colors">
-                    <i data-lucide="menu" class="w-6 h-6"></i>
-                </button>
-
-                <!-- Logo -->
-                <div class="flex items-center gap-2 cursor-pointer group">
-                    <i data-lucide="mountain" class="text-[#C46C3B] w-8 h-8 group-hover:scale-110 transition-transform duration-300"></i>
-                    <span class="font-black text-2xl tracking-tighter uppercase text-gray-900 group-hover:text-[#C46C3B] transition-colors">
-                        Lalibela
-                    </span>
-                </div>
-
-                <!-- Interactive Search Bar (Desktop) -->
-                <div class="hidden md:flex flex-1 max-w-md mx-8 relative">
-                    <input 
-                        type="text" 
-                        id="searchInput"
-                        oninput="handleSearch(this.value)"
-                        placeholder="Search for jackets, boots..." 
-                        class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-full pl-5 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-[#C46C3B]/50 focus:border-[#C46C3B] transition-all"
-                    >
-                    <button class="absolute right-2 top-1.5 bottom-1.5 aspect-square bg-[#C46C3B] text-white rounded-full flex items-center justify-center hover:bg-[#a6592f] transition-colors">
-                        <i data-lucide="search" class="w-4 h-4"></i>
-                    </button>
-                    <!-- Search Dropdown -->
-                    <div id="searchResults" class="hidden absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
-                        <!-- Results injected via JS -->
-                    </div>
-                </div>
-
-                <!-- Icons -->
-                <div class="flex items-center gap-5 sm:gap-6 text-gray-700">
-                    <i data-lucide="search" class="md:hidden w-6 h-6 cursor-pointer hover:text-[#C46C3B] transition-colors"></i>
-                    <i data-lucide="user" class="w-6 h-6 hidden sm:block cursor-pointer hover:text-[#C46C3B] transition-colors"></i>
-                    <i data-lucide="heart" class="w-6 h-6 hidden sm:block cursor-pointer hover:text-[#C46C3B] transition-colors"></i>
-                    
-                    <!-- Cart Icon -->
-                    <button onclick="toggleCart()" class="relative cursor-pointer hover:text-[#C46C3B] transition-colors p-1">
-                        <i data-lucide="shopping-bag" class="w-6 h-6"></i>
-                        <span id="cartBadge" class="hidden absolute -top-1 -right-1 bg-[#C46C3B] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-bounce">0</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Desktop Navigation -->
-            <nav class="hidden md:flex justify-center items-center gap-8 mt-4">
-                <a href="#" class="text-sm font-semibold tracking-wide border-b-2 py-1 border-[#C46C3B] text-[#C46C3B]">Home</a>
-                <a href="#" class="text-sm font-semibold tracking-wide border-b-2 py-1 border-transparent text-gray-600 hover:text-[#C46C3B] hover:border-[#C46C3B] transition-all">New Arrivals</a>
-                <a href="#" class="text-sm font-semibold tracking-wide border-b-2 py-1 border-transparent text-gray-600 hover:text-[#C46C3B] hover:border-[#C46C3B] transition-all">Men</a>
-                <a href="#" class="text-sm font-semibold tracking-wide border-b-2 py-1 border-transparent text-gray-600 hover:text-[#C46C3B] hover:border-[#C46C3B] transition-all">Women</a>
-                <a href="#" class="text-sm font-semibold tracking-wide border-b-2 py-1 border-transparent text-gray-600 hover:text-[#C46C3B] hover:border-[#C46C3B] transition-all">Gear</a>
-                <a href="#" class="text-sm font-semibold tracking-wide border-b-2 py-1 border-transparent text-red-600 hover:border-red-600 transition-all">Sale</a>
-            </nav>
+    <!-- Navigation Hub -->
+    <nav class="bg-white shadow-sm p-4 flex justify-between items-center sticky top-0 z-50">
+        <h1 class="font-black text-xl tracking-tighter text-orange-600">LALIBELA<span class="text-black">MARKET</span></h1>
+        <div class="flex gap-4 font-bold text-sm items-center">
+            <button onclick="showView('home')" class="hover:text-orange-600">Home</button>
+            <button onclick="showView('shop')" class="hover:text-orange-600">Shop</button>
+            <button onclick="showView('dashboard')" class="hover:text-orange-600">User Dashboard</button>
+            <button onclick="showView('seller')" id="navSellerBtn" class="hidden text-green-600 hover:text-green-800">Seller Panel</button>
+            <button onclick="showView('admin')" class="text-red-600 hover:text-red-800">Admin</button>
         </div>
-    </header>
+    </nav>
 
-    <!-- MOBILE MENU DRAWER -->
-    <div id="mobileOverlay" onclick="toggleMobileMenu()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 opacity-0 invisible transition-opacity duration-300 md:hidden"></div>
-    <div id="mobileMenu" class="fixed inset-y-0 left-0 w-[80%] max-w-sm bg-white z-50 transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col md:hidden">
-        <div class="flex justify-between items-center p-6 border-b border-gray-100">
-            <div class="flex items-center gap-2">
-                <i data-lucide="mountain" class="text-[#C46C3B] w-6 h-6"></i>
-                <span class="font-black text-xl uppercase tracking-tighter">Lalibela</span>
-            </div>
-            <button onclick="toggleMobileMenu()" class="p-2 text-gray-400 hover:text-gray-900 bg-gray-50 rounded-full">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-        </div>
-        <div class="flex flex-col py-4 overflow-y-auto">
-            <a href="#" class="px-6 py-4 text-lg font-bold border-b border-gray-50 text-[#C46C3B]">Home</a>
-            <a href="#" class="px-6 py-4 text-lg font-bold border-b border-gray-50 text-gray-800">New Arrivals</a>
-            <a href="#" class="px-6 py-4 text-lg font-bold border-b border-gray-50 text-gray-800">Men</a>
-            <a href="#" class="px-6 py-4 text-lg font-bold border-b border-gray-50 text-gray-800">Women</a>
-            <a href="#" class="px-6 py-4 text-lg font-bold border-b border-gray-50 text-gray-800">Gear</a>
-            <a href="#" class="px-6 py-4 text-lg font-bold border-b border-gray-50 text-red-600">Sale</a>
-        </div>
-    </div>
-
-    <!-- SLIDE-OUT CART -->
-    <div id="cartOverlay" onclick="toggleCart()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 opacity-0 invisible transition-opacity duration-300"></div>
-    <div id="cartPanel" class="fixed inset-y-0 right-0 w-full sm:w-[400px] bg-white z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col shadow-2xl">
-        <div class="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50/50">
-            <h2 class="text-xl font-black flex items-center gap-2">
-                <i data-lucide="shopping-bag" class="text-[#C46C3B]"></i> Your Cart (<span id="cartHeaderCount">0</span>)
-            </h2>
-            <button onclick="toggleCart()" class="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
-        </div>
+    <!-- VIEWS CONTAINER -->
+    <div id="content" class="max-w-6xl mx-auto p-6">
         
-        <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-6 flex flex-col gap-6 no-scrollbar">
-            <!-- Cart items injected via JS -->
-            <div class="flex flex-col items-center justify-center h-full text-center text-gray-500 gap-4 opacity-60">
-                <i data-lucide="shopping-bag" class="w-16 h-16 text-gray-300"></i>
-                <p class="text-lg font-medium">Your cart is empty.</p>
+        <!-- 1. HOME VIEW (PUBLIC) -->
+        <section id="home" class="view active">
+            <div class="bg-orange-100 p-10 rounded-xl text-center mt-6">
+                <h2 class="text-4xl font-black mb-4">Welcome to Lalibela Market</h2>
+                <p class="text-lg mb-6">Buy the finest outdoor gear, or become a seller and start earning today.</p>
+                <button onclick="showView('shop')" class="bg-black text-white px-6 py-3 rounded font-bold hover:bg-gray-800">Start Shopping</button>
             </div>
-        </div>
+        </section>
 
-        <div id="cartFooter" class="hidden p-6 border-t border-gray-100 bg-white">
+        <!-- 2. SHOP VIEW (PUBLIC) -->
+        <section id="shop" class="view">
             <div class="flex justify-between items-center mb-6">
-                <span class="text-gray-600 font-medium">Subtotal</span>
-                <span id="cartTotal" class="text-2xl font-black text-gray-900">0 ETB</span>
+                <h2 class="text-2xl font-bold">Marketplace</h2>
+                <input type="text" placeholder="Search products..." class="border p-2 rounded w-64">
             </div>
-            <button class="w-full bg-[#C46C3B] hover:bg-[#a6592f] text-white py-4 rounded-full font-black text-sm tracking-widest uppercase transition-colors shadow-lg shadow-[#C46C3B]/30">
-                Proceed to Checkout
-            </button>
-        </div>
-    </div>
+            <div id="productGrid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Products injected by JS -->
+            </div>
+        </section>
 
-    <!-- TOAST NOTIFICATION -->
-    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-10 opacity-0 pointer-events-none transition-all duration-300">
-        <div class="bg-gray-900 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 font-medium text-sm">
-            <i data-lucide="check-circle" class="text-green-400 w-5 h-5"></i>
-            <span id="toastMessage">Item added to cart!</span>
-        </div>
-    </div>
-
-    <main>
-        <!-- SEQUENTIAL HERO CAROUSEL -->
-        <section class="relative w-full h-[70vh] min-h-[500px] flex items-center justify-start bg-gray-900 overflow-hidden">
-            <!-- Images are handled by JS to cycle them -->
-            <img id="heroImg1" src="https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&q=80&w=1600" class="absolute inset-0 w-full h-full object-cover opacity-60 transition-opacity duration-1000 ease-in-out">
-            <img id="heroImg2" src="https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&q=80&w=1600" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000 ease-in-out">
-            <img id="heroImg3" src="https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&q=80&w=1600" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000 ease-in-out">
+        <!-- 3. USER DASHBOARD (CUSTOMER AREA) -->
+        <section id="dashboard" class="view">
+            <h2 class="text-2xl font-bold mb-4">My Account</h2>
             
-            <div class="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 w-full text-white">
-                <h1 id="heroTitle" class="text-5xl sm:text-7xl md:text-8xl font-black leading-none mb-6 tracking-tight drop-shadow-2xl whitespace-pre-line fade-in">
-                    EMBRACE<br>THE WILD
-                </h1>
-                <p id="heroSubtitle" class="text-lg sm:text-2xl font-medium mb-10 drop-shadow-md opacity-90 max-w-xl fade-in">
-                    Discover the New Autumn Collection
-                </p>
-                <button class="bg-white text-gray-900 hover:bg-[#C46C3B] hover:text-white px-10 py-4 rounded-full font-black text-sm tracking-widest uppercase transition-all duration-300 shadow-xl transform hover:-translate-y-1">
-                    Shop The Collection
-                </button>
-            </div>
-
-            <!-- Carousel Indicators -->
-            <div class="absolute bottom-8 left-0 right-0 flex justify-center gap-3 z-20" id="carouselIndicators">
-                <button onclick="setHeroSlide(0)" class="w-8 h-2 bg-white rounded-full transition-all duration-300"></button>
-                <button onclick="setHeroSlide(1)" class="w-2 h-2 bg-white/50 hover:bg-white/80 rounded-full transition-all duration-300"></button>
-                <button onclick="setHeroSlide(2)" class="w-2 h-2 bg-white/50 hover:bg-white/80 rounded-full transition-all duration-300"></button>
-            </div>
-        </section>
-
-        <!-- CATEGORIES -->
-        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8" id="categoriesContainer">
-                <!-- Injected via JS -->
-            </div>
-        </section>
-
-        <!-- TRENDING NOW -->
-        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-            <div class="flex justify-between items-end mb-10">
-                <div>
-                    <h2 class="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">Top Rated</h2>
-                    <p class="text-gray-500 mt-2 font-medium">Customer favorites right now in Ethiopia.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="col-span-2 space-y-4">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <h3 class="font-bold text-lg border-b pb-2 mb-4">Recent Orders</h3>
+                        <p class="text-gray-500">You haven't placed any orders yet.</p>
+                    </div>
                 </div>
-                <a href="#" class="hidden sm:inline-block font-bold text-[#C46C3B] hover:text-[#a6592f] border-b-2 border-[#C46C3B] pb-1 uppercase text-sm tracking-widest">View All</a>
-            </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" id="productsContainer">
-                <!-- Products Injected via JS -->
-            </div>
-        </section>
-
-        <!-- ETHIOPIA PROMO BANNER -->
-        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-            <div class="relative rounded-3xl overflow-hidden h-80 sm:h-[400px] flex items-center justify-center text-center group cursor-pointer">
-                <img src="https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&q=80&w=1200" alt="Campfire in Ethiopia" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105">
-                <div class="absolute inset-0 bg-black/50 transition-opacity duration-500 group-hover:bg-black/60"></div>
-                <div class="relative z-10 p-8 max-w-2xl">
-                    <p class="text-[#C46C3B] font-black tracking-widest uppercase mb-4 text-sm drop-shadow">Simien Mountains Special</p>
-                    <h2 class="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-8 drop-shadow-lg leading-tight">
-                        PREPARE FOR THE HIGHLANDS
-                    </h2>
-                    <button class="bg-white hover:bg-gray-100 text-gray-900 px-10 py-4 rounded-full font-black text-sm tracking-widest uppercase transition-colors shadow-2xl">
-                        Explore The Sale
+                <!-- BECOME A SELLER FEATURE -->
+                <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg shadow-sm border border-green-200">
+                    <h3 class="font-bold text-lg mb-2">Want to sell your gear?</h3>
+                    <p class="text-sm mb-4">Join our marketplace. We take a small 2% commission, you keep 98%.</p>
+                    <button id="becomeSellerBtn" onclick="upgradeToSeller()" class="bg-green-600 text-white w-full py-2 rounded font-bold hover:bg-green-700 shadow">
+                        Become a Seller
                     </button>
+                    <p id="sellerStatus" class="hidden text-green-700 font-bold mt-2">✓ You are now an approved seller!</p>
                 </div>
             </div>
         </section>
-    </main>
 
-    <!-- FOOTER -->
-    <footer class="bg-gray-900 text-white pt-20 pb-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 border-b border-gray-800 pb-16">
-            <!-- Newsletter -->
-            <div class="md:col-span-4 lg:col-span-5">
-                <div class="flex items-center gap-2 mb-6">
-                    <i data-lucide="mountain" class="text-[#C46C3B] w-8 h-8"></i>
-                    <span class="font-black text-3xl tracking-tighter uppercase">Lalibela</span>
+        <!-- 4. SELLER PANEL (VENDORS ONLY) -->
+        <section id="seller" class="view">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-green-700">Seller Dashboard</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-4 rounded shadow-sm border border-gray-200">
+                    <p class="text-sm text-gray-500">Gross Sales</p>
+                    <h4 class="text-xl font-black">13,000 ETB</h4>
                 </div>
-                <h3 class="text-lg font-bold mb-3">Join the Adventure</h3>
-                <p class="text-gray-400 text-sm mb-6 max-w-sm leading-relaxed">
-                    Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals delivered straight to your inbox.
-                </p>
-                <div class="flex relative max-w-md">
-                    <input type="email" placeholder="Enter your email" class="w-full bg-gray-800 border-none text-white rounded-full pl-6 pr-32 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#C46C3B]">
-                    <button class="absolute right-1 top-1 bottom-1 px-6 bg-[#C46C3B] text-white font-bold text-xs tracking-widest uppercase rounded-full hover:bg-[#a6592f] transition-colors">
-                        Subscribe
+                <div class="bg-white p-4 rounded shadow-sm border border-gray-200">
+                    <p class="text-sm text-gray-500">Platform Fee (2%)</p>
+                    <h4 class="text-xl font-black text-red-500">-260 ETB</h4>
+                </div>
+                <div class="bg-white p-4 rounded shadow-sm border border-green-200">
+                    <p class="text-sm text-gray-500">Your Net Earnings</p>
+                    <h4 class="text-xl font-black text-green-600">12,740 ETB</h4>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-sm border mb-6">
+                <h3 class="font-bold text-lg border-b pb-2 mb-4">Post a New Product</h3>
+                <form id="addProductForm" onsubmit="postProduct(event)" class="grid grid-cols-2 gap-4">
+                    <input type="text" id="pName" placeholder="Product Name" required class="border p-2 rounded">
+                    <input type="number" id="pPrice" placeholder="Price (ETB)" required class="border p-2 rounded">
+                    <input type="text" id="pCategory" placeholder="Category" class="border p-2 rounded">
+                    <input type="text" id="pImage" placeholder="Image URL (optional)" class="border p-2 rounded">
+                    <textarea id="pDesc" placeholder="Description" class="border p-2 rounded col-span-2" rows="2"></textarea>
+                    <button type="submit" class="bg-black text-white px-4 py-2 rounded font-bold col-span-2 hover:bg-gray-800">
+                        Publish Product
                     </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 5. ADMIN PANEL (OWNER AREA) -->
+        <section id="admin" class="view">
+            <h2 class="text-3xl font-black text-red-600 mb-6">Admin Control Center</h2>
+            
+            <!-- Global Stats -->
+            <div class="grid grid-cols-4 gap-4 mb-6">
+                <div class="bg-white p-4 border rounded shadow-sm">
+                    <p class="text-sm text-gray-500">Total Market Sales</p>
+                    <p class="text-xl font-bold">13,000 ETB</p>
+                </div>
+                <div class="bg-red-50 p-4 border border-red-200 rounded shadow-sm">
+                    <p class="text-sm text-gray-500">Platform Revenue (2%)</p>
+                    <p class="text-xl font-bold text-red-600">260 ETB</p>
+                </div>
+                <div class="bg-white p-4 border rounded shadow-sm">
+                    <p class="text-sm text-gray-500">Active Sellers</p>
+                    <p class="text-xl font-bold">1</p>
+                </div>
+                <div class="bg-white p-4 border rounded shadow-sm">
+                    <p class="text-sm text-gray-500">Products Live</p>
+                    <p id="totalProductsStat" class="text-xl font-bold">2</p>
                 </div>
             </div>
-            <!-- Links 1 -->
-            <div class="md:col-span-2 md:col-start-7">
-                <h4 class="font-black text-sm uppercase tracking-widest mb-6 text-gray-500">Shop</h4>
-                <ul class="space-y-4">
-                    <li><a href="#" class="text-sm text-gray-300 hover:text-white transition-colors">Men's Apparel</a></li>
-                    <li><a href="#" class="text-sm text-gray-300 hover:text-white transition-colors">Women's Apparel</a></li>
-                    <li><a href="#" class="text-sm text-gray-300 hover:text-white transition-colors">Footwear</a></li>
-                    <li><a href="#" class="text-sm text-[#C46C3B] font-bold hover:text-[#a6592f] transition-colors">Special Offers</a></li>
-                </ul>
-            </div>
-            <!-- Links 2 -->
-            <div class="md:col-span-2">
-                <h4 class="font-black text-sm uppercase tracking-widest mb-6 text-gray-500">Support</h4>
-                <ul class="space-y-4">
-                    <li><a href="#" class="text-sm text-gray-300 hover:text-white transition-colors">Contact Us</a></li>
-                    <li><a href="#" class="text-sm text-gray-300 hover:text-white transition-colors">Shipping Info</a></li>
-                    <li><a href="#" class="text-sm text-gray-300 hover:text-white transition-colors">Returns</a></li>
-                    <li><a href="#" class="text-sm text-gray-300 hover:text-white transition-colors">Size Guide</a></li>
-                </ul>
-            </div>
-            <!-- Social -->
-            <div class="md:col-span-2">
-                <h4 class="font-black text-sm uppercase tracking-widest mb-6 text-gray-500">Connect</h4>
-                <div class="flex gap-4 mb-8">
-                    <a href="#" class="bg-gray-800 p-2 rounded-full text-white hover:bg-[#C46C3B] hover:scale-110 transition-all"><i data-lucide="facebook" class="w-4 h-4"></i></a>
-                    <a href="#" class="bg-gray-800 p-2 rounded-full text-white hover:bg-[#C46C3B] hover:scale-110 transition-all"><i data-lucide="instagram" class="w-4 h-4"></i></a>
-                    <a href="#" class="bg-gray-800 p-2 rounded-full text-white hover:bg-[#C46C3B] hover:scale-110 transition-all"><i data-lucide="twitter" class="w-4 h-4"></i></a>
+
+            <!-- Management Tools -->
+            <div class="grid grid-cols-2 gap-6">
+                <div class="bg-white p-6 border rounded shadow-sm">
+                    <h3 class="font-bold border-b pb-2 mb-4">Seller Approvals</h3>
+                    <div class="flex justify-between items-center text-sm p-2 bg-gray-50 rounded">
+                        <span>Abebe K. (Requested)</span>
+                        <button class="bg-blue-600 text-white px-3 py-1 rounded text-xs">Approve</button>
+                    </div>
+                </div>
+                <div class="bg-white p-6 border rounded shadow-sm">
+                    <h3 class="font-bold border-b pb-2 mb-4">Platform Settings</h3>
+                    <div class="flex justify-between items-center text-sm mb-2">
+                        <span>Global Commission Rate</span>
+                        <input type="text" value="2%" class="border p-1 w-16 text-center rounded">
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span>Payment Flow</span>
+                        <select class="border p-1 rounded">
+                            <option>Customer -> Admin -> Seller</option>
+                            <option>Customer -> Seller -> Admin</option>
+                        </select>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
+    </div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 flex flex-col md:flex-row justify-between items-center gap-6">
-            <p class="text-xs font-bold text-gray-500 tracking-widest uppercase">
-                © 2026 LALIBELA OUTDOORS. ADDIS ABABA, ETHIOPIA.
-            </p>
-            <div class="flex items-center gap-3">
-                <span class="text-xs text-gray-500 mr-2">Secure payments via:</span>
-                <div class="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded text-xs font-black tracking-wide text-[#00a651]">telebirr</div>
-                <div class="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded text-xs font-black tracking-wide text-[#6c287a]">CBE BIRR</div>
-                <div class="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded text-xs font-black tracking-wide text-[#f47b20]">awash</div>
-                <div class="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded text-xs font-black tracking-wide text-white">Chapa</div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- JavaScript Logic (No build required!) -->
     <script>
-        // Initialize Icons
+        // CORE STATE
+        let isSeller = false;
+        
+        // MOCK DATABASE
+        let products = [
+            { id: 1, name: "Tech Jacket", price: 5800, vendor: "Lalibela Official", category: "Apparel" },
+            { id: 2, name: "Mountain Boots", price: 7200, vendor: "Shoe Haven", category: "Footwear" }
+        ];
+
+        // ROUTING LOGIC
+        function showView(viewId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            
+            if(viewId === 'shop') renderProducts();
+        }
+
+        // RENDER PRODUCTS
+        function renderProducts() {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = '';
+            
+            products.forEach(p => {
+                grid.innerHTML += `
+                    <div class="bg-white p-4 rounded shadow-sm border border-gray-100 flex flex-col">
+                        <div class="bg-gray-200 h-40 rounded mb-3 flex items-center justify-center text-gray-400">Image</div>
+                        <span class="text-xs text-gray-500 uppercase tracking-wider">${p.category}</span>
+                        <h3 class="font-bold text-lg">${p.name}</h3>
+                        <p class="text-xs text-gray-500 mb-2">Sold by: ${p.vendor}</p>
+                        <div class="mt-auto pt-4 flex justify-between items-center">
+                            <p class="text-orange-600 font-black">${p.price} ETB</p>
+                            <button class="bg-black text-white px-3 py-1 rounded text-sm hover:bg-gray-800">Add</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // SELLER REGISTRATION FLOW
+        function upgradeToSeller() {
+            isSeller = true;
+            document.getElementById('becomeSellerBtn').classList.add('hidden');
+            document.getElementById('sellerStatus').classList.remove('hidden');
+            document.getElementById('navSellerBtn').classList.remove('hidden');
+            
+            // Auto redirect to seller dashboard to show them around
+            setTimeout(() => showView('seller'), 800);
+        }
+
+        // ADD NEW PRODUCT (VENDOR FEATURE)
+        function postProduct(e) {
+            e.preventDefault(); // Stop form submission
+            
+            const name = document.getElementById('pName').value;
+            const price = parseFloat(document.getElementById('pPrice').value);
+            const category = document.getElementById('pCategory').value || "General";
+            
+            // Add to database
+            products.push({
+                id: Date.now(),
+                name: name,
+                price: price,
+                vendor: "My Store (You)",
+                category: category
+            });
+            
+            // Reset form and notify
+            e.target.reset();
+            alert("Product published successfully! Customers can now buy it.");
+            
+            // Update admin stats
+            document.getElementById('totalProductsStat').innerText = products.length;
+        }
+
+        // Initialize icons and initial view
         lucide.createIcons();
-
-        // Data
-        const HERO_DATA = [
-            { title: "EMBRACE<br>THE WILD", subtitle: "Discover the New Autumn Collection" },
-            { title: "PREMIUM<br>APPAREL", subtitle: "Built for the Ethiopian Highlands" },
-            { title: "GEAR UP<br>FOR ADVENTURE", subtitle: "Everything you need for the outdoors" }
-        ];
-
-        const CATEGORIES = [
-            { name: 'APPAREL', img: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&q=80&w=400' },
-            { name: 'FOOTWEAR', img: 'https://images.unsplash.com/photo-1520639888713-7851133b1ed0?auto=format&fit=crop&q=80&w=400' },
-            { name: 'ACCESSORIES', img: 'https://images.unsplash.com/photo-1502280203590-50d4d29c878b?auto=format&fit=crop&q=80&w=400' },
-            { name: 'CAMPING GEAR', img: 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&q=80&w=400' },
-        ];
-
-        const PRODUCTS = [
-            { id: 1, name: 'Lalibela Tech Jacket', rating: 4, reviews: 12, price: 5800, img: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&q=80&w=400' },
-            { id: 2, name: 'Bale Mountain Boots', rating: 5, reviews: 34, price: 7200, img: 'https://images.unsplash.com/photo-1608667508764-33cf0726b13a?auto=format&fit=crop&q=80&w=400' },
-            { id: 3, name: 'Simien Trekking Bag', rating: 5, reviews: 18, price: 4500, img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=400' },
-            { id: 4, name: 'Thermal Water Flask', rating: 5, reviews: 55, price: 1200, img: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&q=80&w=400' }
-        ];
-
-        let cart = [];
-        let currentSlide = 0;
-
-        // Render Categories
-        const catContainer = document.getElementById('categoriesContainer');
-        CATEGORIES.forEach(cat => {
-            catContainer.innerHTML += `
-                <div class="relative group cursor-pointer aspect-[4/5] sm:aspect-auto sm:h-80 rounded-3xl overflow-hidden shadow-md">
-                    <img src="${cat.img}" alt="${cat.name}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex items-end">
-                        <h3 class="text-white font-black text-sm sm:text-lg tracking-widest w-full text-center pb-6 sm:pb-8 uppercase transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                            ${cat.name}
-                        </h3>
-                    </div>
-                </div>
-            `;
-        });
-
-        // Render Products
-        const prodContainer = document.getElementById('productsContainer');
-        PRODUCTS.forEach(p => {
-            let starsHtml = '';
-            for(let i=0; i<5; i++) {
-                starsHtml += `<i data-lucide="star" class="w-4 h-4 ${i < p.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}"></i>`;
-            }
-            
-            prodContainer.innerHTML += `
-                <div class="group flex flex-col relative">
-                    <div class="bg-gray-100 rounded-3xl p-8 mb-5 relative aspect-[4/5] flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:shadow-lg">
-                        <img src="${p.img}" alt="${p.name}" class="max-h-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-110">
-                        <div class="absolute inset-x-0 bottom-0 p-4 opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                            <button onclick="addToCart(${p.id})" class="w-full bg-[#C46C3B] hover:bg-[#a6592f] text-white py-3 rounded-full font-bold text-xs uppercase tracking-widest shadow-lg flex items-center justify-center gap-2">
-                                <i data-lucide="shopping-bag" class="w-4 h-4"></i> Quick Add
-                            </button>
-                        </div>
-                    </div>
-                    <div class="px-2">
-                        <h3 class="font-bold text-gray-900 text-lg mb-1 leading-tight hover:text-[#C46C3B] cursor-pointer transition-colors">${p.name}</h3>
-                        <div class="flex items-center gap-1 mb-2">
-                            ${starsHtml}
-                            <span class="text-xs text-gray-500 font-medium ml-1">(${p.reviews})</span>
-                        </div>
-                        <p class="font-black text-gray-900 text-xl">${p.price.toLocaleString()} ETB</p>
-                    </div>
-                </div>
-            `;
-        });
-        lucide.createIcons(); // Re-initialize icons for newly injected HTML
-
-        // UI Toggles
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobileMenu');
-            const overlay = document.getElementById('mobileOverlay');
-            if(menu.classList.contains('-translate-x-full')) {
-                menu.classList.remove('-translate-x-full');
-                overlay.classList.remove('opacity-0', 'invisible');
-                overlay.classList.add('opacity-100', 'visible');
-            } else {
-                menu.classList.add('-translate-x-full');
-                overlay.classList.remove('opacity-100', 'visible');
-                overlay.classList.add('opacity-0', 'invisible');
-            }
-        }
-
-        function toggleCart() {
-            const panel = document.getElementById('cartPanel');
-            const overlay = document.getElementById('cartOverlay');
-            if(panel.classList.contains('translate-x-full')) {
-                panel.classList.remove('translate-x-full');
-                overlay.classList.remove('opacity-0', 'invisible');
-                overlay.classList.add('opacity-100', 'visible');
-                renderCart();
-            } else {
-                panel.classList.add('translate-x-full');
-                overlay.classList.remove('opacity-100', 'visible');
-                overlay.classList.add('opacity-0', 'invisible');
-            }
-        }
-
-        // Cart Logic
-        function addToCart(id) {
-            const product = PRODUCTS.find(p => p.id === id);
-            const existing = cart.find(item => item.id === id);
-            if (existing) {
-                existing.qty += 1;
-            } else {
-                cart.push({ ...product, qty: 1 });
-            }
-            
-            updateCartBadge();
-            showToast(`Added ${product.name} to cart!`);
-        }
-
-        function removeFromCart(id) {
-            cart = cart.filter(item => item.id !== id);
-            updateCartBadge();
-            renderCart();
-        }
-
-        function updateCartBadge() {
-            const badge = document.getElementById('cartBadge');
-            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
-            if(totalQty > 0) {
-                badge.textContent = totalQty;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
-        }
-
-        function renderCart() {
-            const container = document.getElementById('cartItemsContainer');
-            const footer = document.getElementById('cartFooter');
-            const totalEl = document.getElementById('cartTotal');
-            const headerCount = document.getElementById('cartHeaderCount');
-            
-            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
-            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            
-            headerCount.textContent = totalQty;
-            
-            if(cart.length === 0) {
-                container.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-full text-center text-gray-500 gap-4 opacity-60 mt-10">
-                        <i data-lucide="shopping-bag" class="w-16 h-16 text-gray-300"></i>
-                        <p class="text-lg font-medium">Your cart is empty.</p>
-                    </div>`;
-                footer.classList.add('hidden');
-            } else {
-                let html = '';
-                cart.forEach(item => {
-                    html += `
-                        <div class="flex gap-4 items-center bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
-                            <img src="${item.img}" class="w-20 h-20 object-cover rounded-lg bg-gray-50">
-                            <div class="flex-1">
-                                <h3 class="font-bold text-sm text-gray-900 leading-tight mb-1">${item.name}</h3>
-                                <p class="text-xs text-gray-500 mb-2">Qty: ${item.qty}</p>
-                                <p class="font-black text-[#C46C3B]">${item.price.toLocaleString()} ETB</p>
-                            </div>
-                            <button onclick="removeFromCart(${item.id})" class="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all">
-                                <i data-lucide="trash-2" class="w-5 h-5"></i>
-                            </button>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-                totalEl.textContent = `${totalPrice.toLocaleString()} ETB`;
-                footer.classList.remove('hidden');
-            }
-            lucide.createIcons();
-        }
-
-        // Search Logic
-        function handleSearch(query) {
-            const resContainer = document.getElementById('searchResults');
-            if(!query) {
-                resContainer.classList.add('hidden');
-                return;
-            }
-            
-            const filtered = PRODUCTS.filter(p => p.name.toLowerCase().includes(query.toLowerCase()));
-            
-            if(filtered.length > 0) {
-                let html = '';
-                filtered.forEach(p => {
-                    html += `
-                        <div onclick="document.getElementById('searchInput').value=''; document.getElementById('searchResults').classList.add('hidden'); addToCart(${p.id});" class="flex items-center gap-4 p-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-50 last:border-0">
-                            <img src="${p.img}" class="w-10 h-10 object-cover rounded">
-                            <div>
-                                <p class="text-sm font-bold">${p.name}</p>
-                                <p class="text-xs text-[#C46C3B] font-bold">${p.price.toLocaleString()} ETB</p>
-                            </div>
-                        </div>
-                    `;
-                });
-                resContainer.innerHTML = html;
-            } else {
-                resContainer.innerHTML = `<div class="p-4 text-sm text-gray-500 text-center">No products found.</div>`;
-            }
-            resContainer.classList.remove('hidden');
-        }
-
-        // Toast Notification
-        function showToast(msg) {
-            const toast = document.getElementById('toastNotification');
-            document.getElementById('toastMessage').textContent = msg;
-            toast.classList.remove('translate-y-10', 'opacity-0', 'pointer-events-none');
-            setTimeout(() => {
-                toast.classList.add('translate-y-10', 'opacity-0', 'pointer-events-none');
-            }, 3000);
-        }
-
-        // Hero Carousel Logic
-        function setHeroSlide(index) {
-            currentSlide = index;
-            document.getElementById('heroImg1').style.opacity = index === 0 ? '0.6' : '0';
-            document.getElementById('heroImg2').style.opacity = index === 1 ? '0.6' : '0';
-            document.getElementById('heroImg3').style.opacity = index === 2 ? '0.6' : '0';
-            
-            document.getElementById('heroTitle').innerHTML = HERO_DATA[index].title;
-            document.getElementById('heroSubtitle').innerHTML = HERO_DATA[index].subtitle;
-
-            // Update indicators
-            const buttons = document.getElementById('carouselIndicators').children;
-            for(let i=0; i<3; i++) {
-                if(i === index) {
-                    buttons[i].className = "w-8 h-2 bg-white rounded-full transition-all duration-300";
-                } else {
-                    buttons[i].className = "w-2 h-2 bg-white/50 hover:bg-white/80 rounded-full transition-all duration-300";
-                }
-            }
-        }
-
-        // Auto change slide every 5s
-        setInterval(() => {
-            currentSlide = (currentSlide + 1) % 3;
-            setHeroSlide(currentSlide);
-        }, 5000);
-
+        renderProducts();
     </script>
 </body>
 </html>
-
-```
-
